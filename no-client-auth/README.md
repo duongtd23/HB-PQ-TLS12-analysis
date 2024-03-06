@@ -3,10 +3,10 @@ We consider the extended protocol (with hybrid signatures) in case client authen
 
 In this folder, you can find:
 
-### 1. `pqtls-noca.cafe`: 
+#### 1. `pqtls-noca.cafe`
 The CafeOBJ specification of the full handshake (again, in case client authentication is not desired). Check the comments embedded in the specification.
 
-### 2. `properties-full-hs.cafe`: 
+#### 2. `properties-full-hs.cafe`
 Specification of security properties with respect to the full handshake and the lemmas to prove them. 
 
 The properties taken into verification are as follows (check our paper for their descriptions):
@@ -27,13 +27,13 @@ Whereas, predicates defined in module `PROP-FULLHS-PQSAFE` are valid only in cas
 Most predicates in module `PROP-FULLHS` are proven with respect to (wrt) `PROP-FULLHS`, i.e., regardless of case (i) or (ii).
 Some others are proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE`, i.e., they are proven separately for case (i) (see folder `full-hs`) and case (ii) (see folder `pq-unsafe/full-hs`). 
 
-The auxiliary lemmas defined can be divided into four subsets (check our paper for their description):
+The auxiliary lemmas defined can be divided into four subsets (check our paper for their descriptions):
 - Secrecy helper lemmas.
 - Authentication helper lemmas.
 - Lemmas concerning the set of used secrets.
 - Lemmas concerning the intruder knowledge.
 
-### 3. `properties-abbr-hs.cafe`: 
+#### 3. `properties-abbr-hs.cafe`
 Specification of security properties with respect to the abbreviated handshake and the lemmas to prove them.
 
 The properties taken into verification are as follows:
@@ -49,11 +49,11 @@ Whereas, predicates defined in module `PROP-ABBRHS-PQSAFE` are valid only in cas
 Most predicates in module `PROP-ABBRHS` are proven with respect to (wrt) `PROP-ABBRHS`, i.e., regardless of case (i) or (ii).
 Some others are proven separately wrt module `PROP-ABBRHS-PQSAFE` and wrt module `PROP-ABBRHS-CLSAFE`, i.e., they are proven separately for case (i) (see folder `abbr-hs`) and case (ii) (see folder `pq-unsafe/abbr-hs`). 
 
-### 4. `prove-3-properties.sh`: 
+#### 4. `prove-3-properties.sh` 
 Script to execute the proofs of the three properties: `ssKeySe`, `fwdSe`, and `auth` (session key secrecy, forward secrecy, authentication, respectively) with respect to the full handshake.
 To run this script, be sure to modify your paths to Maude and IPSG in that file properly.
 
-### 5. `gen-proof.sh`:
+#### 5. `gen-proof.sh`
 Script to replicate our proofs with IPSG.
 
 If you want to replicate our formal proofs, first modify your paths to Maude and IPSG in the script properly.
@@ -62,7 +62,7 @@ Then, simply run the script and wait for a couple of minutes.
 $ ./gen-proof.sh
 ```
 
-### 6. `full-hs`: 
+#### 6. `full-hs`
 The proofs of properties and lemmas defined in `properties-full-hs.cafe`. 
 
 As mentioned in Section 2 above, some predicates defined in module `PROP-FULLHS` are proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE`.
@@ -73,25 +73,25 @@ In other words, in this folder, we consider only case (i): PQ primitives are saf
 For example, file `ssKeySe.cafe` saves the proof of `ssKeySe`.
 
 There are four sub-folders:
-- `auth-lm`: saves the proofs of "Authentication helper lemmas" (Section 2 above).
+- `auth-lm`: saves the proofs of "Authentication helper lemmas" (see Section 2 above).
 - `knl-lm`: saves the proofs of "Lemmas concerning the intruder knowledge".
 - `scrused-lm`: saves the proofs of "Lemmas concerning the set of used secrets".
 - `se-lm`: saves the proofs of "Secrecy helper lemmas".
 
 
-### 7. `abbr-hs`: 
+#### 7. `abbr-hs`
 The proofs of properties and lemmas defined in `properties-abbr-hs.cafe`. 
 
-### 8. `pq-unsafe`: 
+#### 8. `pq-unsafe`
 This folder deals with case (ii): classical primitives are safe (while PQ primitives are unsafe).
 For those predicates defined in module `PROP-FULLHS` and proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE` (mentioned in Section 2 above),
 this folder provides their proofs wrt module `PROP-FULLHS-CLSAFE`.
 We also define some addional lemmas for this case. Check README in the folder.
 
-### 9. `inputs`:
+#### 9. `inputs`
 Input files for IPSG to re-generate our proof scores.
 These files are used in script `gen-proof.sh`.
 
-### 10. `others`:
+#### 10. `others`
 In file `exec.cafe`, we show that two parties can complete a session, obtaining the same handshake keys.
 It implies that our model is executable and eliminates the suspicion that our verification results are achieved simply because the specification is not executed.
