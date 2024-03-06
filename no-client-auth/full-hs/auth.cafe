@@ -1,0 +1,81 @@
+open PROP-FULLHS-PQSAFE .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq sign4 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' || sign3 ||
+    pqsign(pqSignPriK(b), h(r || r2 || pk || pk')), ?n) \in nw(s) = true .
+  red auth-lm1(s,a,b,?b2,?a,pk,pk',r,r2,sign3,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+
+open PROP-FULLHS-PQSAFE .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq sign4 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' || sign3 ||
+    pqsign(pqSignPriK(b), h(r || r2 || pk || pk')), ?n) \in nw(s) = false .
+  red se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+
+open PROP-FULLHS-PQSAFE .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq (sign4 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk'))) = false .
+  red se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+
+open PROP-FULLHS-PQSAFE .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq (pspk = pqSignPubK(b)) = false .
+  red (inv4(s,a,b,?b2,cspk,pspk) and
+      se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?m))
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+eof
+load no-client-auth/full-hs/auth.cafe .

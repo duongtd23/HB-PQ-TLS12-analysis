@@ -1,0 +1,90 @@
+open PROP-ABBRHS .
+  ops a b ?b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op i : -> Sid .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4)
+      \in knl(s) = true .
+  red ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4, i || dl)
+    implies auth-abbr-tight(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) .
+close
+
+open PROP-ABBRHS .
+  ops a b ?b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op i : -> Sid .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4)
+      \in knl(s) = false .
+  eq enc(hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl)) \in knl(s) = true .
+  red auth-lm4(s,a,b,pk,pk',k2,k2',r,r2,r3,r4, i,dl)
+    implies auth-abbr-tight(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) .
+close
+
+open PROP-ABBRHS .
+  ops a b ?b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op i : -> Sid .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4)
+      \in knl(s) = false .
+  eq enc(hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl)) \in knl(s) = false .
+  eq sf2M(?b2,b,a,enc(
+      hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl))) \in nw(s) = true .
+  red knl-lm5(s,b,a,?b2,enc(
+      hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl)))
+    implies auth-abbr-tight(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) .
+close
+
+open PROP-ABBRHS .
+  ops a b ?b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op i : -> Sid .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4)
+      \in knl(s) = false .
+  eq enc(hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl)) \in knl(s) = false .
+  eq sf2M(?b2,b,a,enc(
+      hsskey2(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'),
+        r || r2 || ecPublic(k2) || encapsC(pk',k2')), r3 || r4),
+      h(a || b || i || dl))) \in nw(s) = false .
+  red auth-lm5(s,a,b,?b2,pk,pk',k2,k2',r,r2,r3,r4,i,dl)
+    implies auth-abbr-tight(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) .
+close
+
+eof
+load no-client-auth/abbr-hs/auth-abbr-tight.cafe .

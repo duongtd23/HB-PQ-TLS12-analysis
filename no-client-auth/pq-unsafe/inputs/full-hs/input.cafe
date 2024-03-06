@@ -1,0 +1,96 @@
+-- properties defined in no-client-auth/properties-full-hs.cafe 
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv scrused-lm2$(S:Sys, K:EcSecretK) .
+  inv scrused-lm3(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,EN:PqCipher, N:Nat) .
+  generate ephSe(S:Sys, A:Prin,B:Prin, PK':PqPublicK, 
+    K2:EcSecretK,K2':PqSecretK, N:Nat)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/ephSe.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  generate inv2(S:Sys, A:Prin)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/se-lm/inv2.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv inv3(S:Sys) .
+  inv inv1$(S:Sys,B:Prin, CSPK:ClSignPubK) .
+  generate inv4(S:Sys, A:Prin,B:Prin,B2:Prin, CSPK:ClSignPubK,PSPK:PqSignPubK)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/se-lm/inv4.cafe .
+:save-proof .
+-- eof
+
+-- properties defined in no-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe 
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv ltkSe(S:Sys, A:Prin) .
+  generate auth-lm1$(S:Sys, A:Prin,B:Prin,B2:Prin,?A:Prin, 
+    PK:EcPublicK,PK':PqPublicK,
+    R:Rand,R2:Rand, SIGN3:Data, N:Nat,?M:Nat)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/auth-lm/auth-lm1$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv ltkSe(S:Sys, A:Prin) .
+  inv scrused-lm2$(S:Sys, K:EcSecretK) .
+  inv scrused-lm5(S:Sys, B:Prin, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand) .
+  generate knl-lm4$(S:Sys, B:Prin, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/knl-lm/knl-lm4$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  generate knl-lm6$(S:Sys, K:EcSecretK, K2:EcSecretK)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/knl-lm/knl-lm6$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv inv2(S:Sys, A:Prin) .
+  inv scrused-lm2$(S:Sys, K:EcSecretK) .
+  inv knl-lm4$(S:Sys, B:Prin, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand) .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,PK':PqPublicK,
+    SIGN3:Data,SIGN4:Data, N:Nat) .
+  generate knl-lm8$(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,PK':PqPublicK,
+    R:Rand,R2:Rand, SIGN4:Data, N:Nat)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/knl-lm/knl-lm8$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  generate scrused-lm2$(S:Sys, K:EcSecretK)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/scrused-lm/scrused-lm2$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-FULLHS-CLSAFE .
+  inv inv3(S:Sys) .
+  generate inv1$(S:Sys,B:Prin, CSPK:ClSignPubK)
+  induction on S:Sys .
+close
+set-output no-client-auth/pq-unsafe/full-hs/se-lm/inv1$.cafe .
+:save-proof .
+eof
+
+load common.cafe protocol.cafe .
+load no-client-auth/pqtls-noca.cafe no-client-auth/properties-full-hs.cafe .
+load no-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe .
+load no-client-auth/pq-unsafe/inputs/full-hs/input.cafe .

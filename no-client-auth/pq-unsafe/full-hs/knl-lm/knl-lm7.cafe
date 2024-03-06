@@ -1,0 +1,47 @@
+open PROP-FULLHS-CLSAFE .
+  ops a b b2 : -> Prin .
+  op n : -> Nat .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq cspk = clSignPubK(b) .
+  eq sign3 = clsign(clSignPriK(b), h(r || r2 || pk || pk')) .
+  red knl-lm8$(s,a,b,b2,pk,pk',r,r2,sign4,n)
+    implies knl-lm7(s,a,b,b2,pk,pk',r,r2,cspk,pspk,sign3,sign4,n) .
+close
+open PROP-FULLHS-CLSAFE .
+  ops a b b2 : -> Prin .
+  op n : -> Nat .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq cspk = clSignPubK(b) .
+  eq (sign3 = clsign(clSignPriK(b), h(r || r2 || pk || pk'))) = false .
+  red knl-lm7(s,a,b,b2,pk,pk',r,r2,cspk,pspk,sign3,sign4,n) .
+close
+
+open PROP-FULLHS-CLSAFE .
+  ops a b b2 : -> Prin .
+  op n : -> Nat .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq (cspk = clSignPubK(b)) = false .
+  red inv4(s,a,b,b2,cspk,pspk) 
+    implies knl-lm7(s,a,b,b2,pk,pk',r,r2,cspk,pspk,sign3,sign4,n) .
+close
