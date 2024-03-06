@@ -12,7 +12,9 @@ To confirm the counterexample, first configure your paths to Maude and IPSG fold
 $ ./execute.sh
 ```
 
+CafeInMaude may take up to 1 minute to load all specification before executing the `red` command in file `auth-counterexample.cafe`.
 The script is actually equivalent to the following command sequence:
+
 ```bash
 $ maude -allow-files path-to-IPSG-folder/cafeinmaude3/cafeInMaude.maude
 CafeInMaude> load common.cafe .
@@ -21,8 +23,10 @@ CafeInMaude> load no-pq-sign/pqtls-nopqsign.cafe .
 CafeInMaude> load no-pq-sign/properties.cafe .
 CafeInMaude> load no-pq-sign/auth-counterexample.cafe .
 ```
-Note that, we use actually CafeInMaude, which is available inside IPSG (IPSG is implemented on top of CafeInMaude). 
+
+Note that, we actually use CafeInMaude, which is available inside IPSG (IPSG is implemented on top of CafeInMaude). 
 For better performance, we recommend using CafeInMaude.
+Note also that you may need to either change the current working directory by `cd` command before running the `load` commands above or use the absolute paths instead.
 
 If there is no error, the result below will be outputted, which says that `auth` is false in state `s17`:
 ```bash

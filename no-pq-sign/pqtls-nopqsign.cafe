@@ -3,7 +3,7 @@
 
 -- load no-pq-sign/protocol.cafe .
 
-** Specification of full handshake
+** Full handshake specification
 mod* PQTLS {
   ex(PROTOCOL-ABBR)
 
@@ -24,7 +24,7 @@ mod* PQTLS {
   vars N N2 : Nat
   vars D SIGN SIGN2 : Data
 
--- transitions
+** signatures of transitions modeling full handshake **
   op chello : Sys Prin Prin Version Rand Suites 
     PqKemParams -> Sys {constr}
   op shello : Sys Rand Suite Sid
@@ -59,7 +59,7 @@ mod* PQTLS {
     Rand Suite Sid
     EcSecretK PqSecretK Nat
     EcPublicK PqCipher Nat Data -> Sys {constr}
--- complete for client side
+-- Complete for client side
   op ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid
@@ -67,7 +67,7 @@ mod* PQTLS {
     EcPublicK PqPublicK Data Nat 
     EcSecretK PqSecretK Nat Data -> Sys {constr}
 
--- client hello 
+-- Client A sends a ClientHello message (of full handshake) to B
   op c-chello : Sys Prin Rand -> Bool
   eq c-chello(S,A,R) = not(R \in udata(S)) .
   ceq nw(chello(S,A,B,V,R,CSs,KEMs)) = 
@@ -81,7 +81,7 @@ mod* PQTLS {
   eq scrLeaked(chello(S,A,B,V,R,CSs,KEMs)) = scrLeaked(S) .
   ceq chello(S,A,B,V,R,CSs,KEMs) = S if not c-chello(S,A,R) .
 
--- server hello
+-- Server B sends a ServerHello message to A
   op c-shello : Sys Rand Suite Sid
     Prin Prin Prin Version Rand Suites PqKemParams -> Bool
   eq c-shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) = 
@@ -104,7 +104,7 @@ mod* PQTLS {
   ceq shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) = S 
     if not c-shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) .
 
--- server certificate
+-- Server sends their Certificate message
   op c-scert : Sys 
     Prin Prin Version Rand Suite Sid -> Bool
   eq c-scert(S,A,B,V,R2,CS,I) = 
@@ -125,7 +125,7 @@ mod* PQTLS {
   ceq scert(S,A,B,V,R2,CS,I) = S 
     if not c-scert(S,A,B,V,R2,CS,I) .
 
--- server key exchange
+-- Server sends a server key exchange message
   op c-skeyex : Sys EcSecretK PqSecretK
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid -> Bool
@@ -161,7 +161,7 @@ mod* PQTLS {
   ceq skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) = S 
     if not c-skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) .
 
--- server hello done
+-- Server sends a server hello done message
   op c-shelloDone : Sys Prin Prin Rand Rand
     EcSecretK PqSecretK Nat -> Bool
   eq c-shelloDone(S,A,B,R,R2,K,K',N) = 
@@ -183,7 +183,7 @@ mod* PQTLS {
   ceq shelloDone(S,A,B,R,R2,K,K',N) = S
   if not c-shelloDone(S,A,B,R,R2,K,K',N) .
 
--- client key exchange
+-- Client A sends a client key exchange message to server B
   op c-ckeyex : Sys EcSecretK PqSecretK
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -237,7 +237,7 @@ mod* PQTLS {
     if not c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PK,PK',SIGN2,N) .
 
--- client change cipher spec
+-- Client A sends a change cipher spec
   op c-cChangeCS : Sys
     Prin Prin PqPublicK EcSecretK PqSecretK Nat -> Bool
   eq c-cChangeCS(S,A,B,PK',K2,K2',N2)
@@ -253,7 +253,7 @@ mod* PQTLS {
   ceq cChangeCS(S,A,B,PK',K2,K2',N2) = S 
     if not c-cChangeCS(S,A,B,PK',K2,K2',N2) .
 
--- client finish
+-- Client A sends their Finished message
   op c-cfinish : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -302,7 +302,7 @@ mod* PQTLS {
     if not c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) .
 
--- server change cipher spec
+-- Server sends a change cipher spec
   op c-sChangeCS : Sys
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid 
@@ -343,7 +343,7 @@ mod* PQTLS {
     if not c-sChangeCS(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) .
 
--- server finish
+-- Server B sends their Finished message
   op c-sfinish : Sys
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid 
@@ -398,7 +398,7 @@ mod* PQTLS {
     if not c-sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) .
 
--- client validates the received server finished message
+-- Client validates the received Finished message from server
   op c-ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 

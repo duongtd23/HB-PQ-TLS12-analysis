@@ -22,7 +22,7 @@ mod* PROP {
   eq ecdhSafe = false .
   eq clSignSafe = false .
 
--- Server authentication property
+-- Server authentication property (check our paper for the explanation)
   op auth : Sys Prin Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
     Rand Rand DataL ClSignPubK Data Data Nat -> Bool
   eq auth(S,A,B,?A,PK,PK',K2,K2',R,R2,DL,CSPK,SIGN,SIGN2,?M) = 

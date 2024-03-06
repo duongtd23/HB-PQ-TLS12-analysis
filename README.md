@@ -17,26 +17,54 @@ In this repository, you can find:
 
 
 ## Executing proof scores
-Proof scores are executable (CafeOBJ code). To install CafeOBJ, please isit https://cafeobj.org/.
-You can try to run the proof score of `safety2` of the Shared counter program by the following commands:
+Proof scores are executable (CafeOBJ code). 
+For better performance, we recommend using CafeInMaude - a second major implementation of CafeOBJ in Maude - instead of the original CafeOBJ.
+CafeInMaude is available inside IPSG (IPSG is implemented on top of CafeInMaude) - https://github.com/duongtd23/IPSG-tool.
+To install IPSG, we first need to intall Maude - a high performance language, which can be downloaded from here: http://maude.cs.illinois.edu/w/index.php/Maude_download_and_installation. Download and clone the two tools.
+Once install them, 
+you can try to run the proof score of `ssKeySe` (session key secrecy property) in case client authentication is not desired with CafeInMaude by the following commands:
+
 ```bash
-$ cafeobj common.cafe shared-counter/sc-hp.cafe shared-counter/properties.cafe shared-counter/safety2.cafe 
+$ maude -allow-files path-to-IPSG-folder/cafeinmaude3/cafeInMaude.maude
+CafeInMaude> load common.cafe .
+CafeInMaude> load protocol.cafe .
+CafeInMaude> load no-client-auth/pqtls-noca.cafe .
+CafeInMaude> load no-client-auth/properties-full-hs.cafe .
+CafeInMaude> load no-client-auth/full-hs/ssKeySe.cafe .
 ```
 
-Note that some proofs are run slowly with CafeOBJ, and usually run faster with CafeInMaude:
-
+where the first command starts the CafeInMaude environment (`path-to-IPSG-folder` is the path of the IPSG folder)
+Note that CafeInMaude may take up to half a minute to load file `protocol.cafe`.
+Note also that you may need to either change the current working directory by `cd` command before running the `load` commands above or use the absolute paths instead.
+If nothing is wrong, the result below will be returned, which says that `ssKeySe` is proven:
 ```bash
-$ maude -allow-files path-to-CafeInMaude/src/cafeInMaude.maude
-IPSG> load common.cafe .
-IPSG> load shared-counter/sc-hp.cafe .
-IPSG> load shared-counter/properties.cafe .
-IPSG> load shared-counter/safety2.cafe .
+Result: true : Bool
+CafeInMaude>
 ```
 
-CafeInMaude  can be downloaded from here: https://github.com/ariesco/CafeInMaude.
-To install CafeInMaude, we first need to intall Maude, which we can download its version 3.2 from here: http://maude.cs.illinois.edu/w/index.php/Maude_download_and_installation.
-Both installations are simple, with Maude, you just need to download the binary file (and perhaps add the tool to the PATH environment variable to execute the tool from everywhere), while with CafeInMaude, you just need to clone its repo.
+After that, you do not need to load the specification again, but can continue loading other proof scores, for example, the proof of `fwdSe` (forward secrecy property):
+
+```bash
+CafeInMaude> load no-client-auth/full-hs/fwdSe.cafe .
+```
+
+### Using script instead
+We provide a script to replace the command sequence above.
+You can first configure your paths to Maude and IPSG folder in script `no-client-auth/prove-3-properties.sh` properly, and then run it to prove the three properties in case client authentication is not desired: `ssKeySe`, `fwdSe`, and `auth`.
+
+```bash
+$ ./prove-3-properties.sh
+```
+
+### Executing with CafeOBJ instead
+If you want to try with CafeOBJ, visit https://cafeobj.org/ to first install the tool.
+After that, you can try:
+
+```bash
+$ cafeobj common.cafe protocol.cafe no-client-auth/pqtls-noca.cafe no-client-auth/properties-full-hs.cafe no-client-auth/full-hs/ssKeySe.cafe 
+```
+
+CafeOBJ load the specification much faster than CafeInMaude, but usually slower than CafeInMaude in executing proofs (performing `red` commands).
 
 ## Re-generating proof scores
-To re-generate the proof scores again, first, modify paths to Maude and IPSG in file `shared-counter/gen-sc.sh` and then run it.
-Please check IPSG's repository as well: https://github.com/duongtd23/IPSG-tool.
+Check the folder `no-client-auth` for the guidelines.
