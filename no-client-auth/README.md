@@ -1,5 +1,5 @@
 ## Client authentication is not desired
-We consider extended protocol (with hybrid signatures) in case client authentication is not desired.
+We consider the extended protocol (with hybrid signatures) in case client authentication is not desired.
 
 In this folder, you can find:
 
@@ -23,11 +23,11 @@ The properties taken into verification are as follows (check our paper for their
 
 
 Predicates defined in module `PROP-FULLHS` are valid to both cases: (i) PQ primitives are safe (while classical primitives are unsafe) and (ii) classical primitives are safe (while PQ primitives are unsafe).
-Whereas, predicates defined in moudle `PROP-FULLHS-PQSAFE` are valid only in case (i).
+Whereas, predicates defined in module `PROP-FULLHS-PQSAFE` are valid only in case (i).
 Most predicates in module `PROP-FULLHS` are proven with respect to (wrt) `PROP-FULLHS`, i.e., regardless of case (i) or (ii).
 Some others are proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE`, i.e., they are proven separately for case (i) (see folder `full-hs`) and case (ii) (see folder `pq-unsafe/full-hs`). 
 
-The auxiliary lemmas defined can be divided into four subsets:
+The auxiliary lemmas defined can be divided into four subsets (check our paper for their description):
 - Secrecy helper lemmas.
 - Authentication helper lemmas.
 - Lemmas concerning the set of used secrets.
@@ -45,7 +45,7 @@ The properties taken into verification are as follows:
 
 Similar to `properties-full-hs.cafe`, 
 predicates defined in module `PROP-ABBRHS` are valid to both cases: (i) PQ primitives are safe (while classical primitives are unsafe) and (ii) classical primitives are safe (while PQ primitives are unsafe).
-Whereas, predicates defined in moudle `PROP-ABBRHS-PQSAFE` are valid only in case (i).
+Whereas, predicates defined in module `PROP-ABBRHS-PQSAFE` are valid only in case (i).
 Most predicates in module `PROP-ABBRHS` are proven with respect to (wrt) `PROP-ABBRHS`, i.e., regardless of case (i) or (ii).
 Some others are proven separately wrt module `PROP-ABBRHS-PQSAFE` and wrt module `PROP-ABBRHS-CLSAFE`, i.e., they are proven separately for case (i) (see folder `abbr-hs`) and case (ii) (see folder `pq-unsafe/abbr-hs`). 
 
@@ -57,20 +57,23 @@ To run this script, be sure to modify your paths to Maude and IPSG in that file 
 Script to replicate our proofs with IPSG.
 
 If you want to replicate our formal proofs, first modify your paths to Maude and IPSG in the script properly.
-Then, simply run the script and wait for a some minutes.
+Then, simply run the script and wait for a couple of minutes.
 ```bash
 $ ./gen-proof.sh
 ```
 
 ### 6. `full-hs`: 
 The proofs of properties and lemmas defined in `properties-full-hs.cafe`. 
-As mentioned before, some lemmas in module `PROP-FULLHS` are proven wrt module `PROP-FULLHS-PQSAFE`, which means that they are then proven again wrt module `PROP-FULLHS-CLSAFE` in folder `pq-unsafe/full-hs`.
+
+As mentioned in Section 2 above, some predicates defined in module `PROP-FULLHS` are proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE`.
+This folder provides the proofs of such predicates wrt module `PROP-FULLHS-PQSAFE`
+(and they are then proven again wrt module `PROP-FULLHS-CLSAFE` in folder `pq-unsafe/full-hs`, see Section 8 below).
 In other words, in this folder, we consider only case (i): PQ primitives are safe (while classical primitives are unsafe).
 
 For example, file `ssKeySe.cafe` saves the proof of `ssKeySe`.
 
 There are four sub-folders:
-- `auth-lm`: saves the proofs of "Authentication helper lemmas" (Section 2. above).
+- `auth-lm`: saves the proofs of "Authentication helper lemmas" (Section 2 above).
 - `knl-lm`: saves the proofs of "Lemmas concerning the intruder knowledge".
 - `scrused-lm`: saves the proofs of "Lemmas concerning the set of used secrets".
 - `se-lm`: saves the proofs of "Secrecy helper lemmas".
@@ -80,7 +83,10 @@ There are four sub-folders:
 The proofs of properties and lemmas defined in `properties-abbr-hs.cafe`. 
 
 ### 8. `pq-unsafe`: 
-This folder deals with case (ii): classical primitives are safe (while PQ primitives are unsafe). We prove some lemmas in module `PROP-FULLHS` are true wrt module `PROP-FULLHS-CLSAFE` (as mentioned in Section 6). We also define some addional lemmas for this case. Check README in the folder.
+This folder deals with case (ii): classical primitives are safe (while PQ primitives are unsafe).
+For those predicates defined in module `PROP-FULLHS` and proven separately wrt module `PROP-FULLHS-PQSAFE` and wrt module `PROP-FULLHS-CLSAFE` (mentioned in Section 2 above),
+this folder provides their proofs wrt module `PROP-FULLHS-CLSAFE`.
+We also define some addional lemmas for this case. Check README in the folder.
 
 ### 9. `inputs`:
 Input files for IPSG to re-generate our proof scores.
@@ -88,3 +94,4 @@ These files are used in script `gen-proof.sh`.
 
 ### 10. `others`:
 In file `exec.cafe`, we show that two parties can complete a session, obtaining the same handshake keys.
+It implies that our model is executable and eliminates the suspicion that our verification results are achieved simply because the specification is not executed.

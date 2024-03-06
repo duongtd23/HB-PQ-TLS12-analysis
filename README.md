@@ -9,11 +9,11 @@ In this repository, you can find:
 
 3. `protocol.cafe`: The specification of the abbreviated handshake and intruder capabilities. We separately consider the case when client authentication is not desired (folder `no-client-auth`) and when it is desired (folder `with-client-auth`). With both cases, the specification of the abbreviated handshake and the intruder are same. Therefore, these two common parts are written in this `protocol.cafe` file. Note that this file requires the preloading file `common.cafe`.
 
-4. `no-pq-sign`: The formal specification of the original protocol without a post-quantum (PQ) digital signature algorithm, and the counterexample showing that server authentication is not met. Check README in that folder.
+4. `no-pq-sign`: The formal specification of the original protocol without a post-quantum (PQ) digital signature algorithm, and the counterexample showing that server authentication is not met. Check README in the folder.
 
-5. `no-client-auth`: When client authentication is not desired. Check README in that folder.
+5. `no-client-auth`: When client authentication is not desired. Check README in the folder.
 
-6. `with-client-auth`: When client authentication is desired. Check README in that folder.
+6. `with-client-auth`: When client authentication is desired. Check README in the folder.
 
 
 ## Executing proof scores
