@@ -4846,4 +4846,4 @@ open PROP-FULLHS .
   red scrused-lm3(s,a,b,a2,pk,en,n) implies scrused-lm3(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),a,b,a2,pk,en,n) .
 close
 
---> Time taken is 7064ms
+--> Time taken is 6391ms

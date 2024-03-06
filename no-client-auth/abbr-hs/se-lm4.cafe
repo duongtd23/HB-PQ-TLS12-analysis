@@ -6054,4 +6054,4 @@ open PROP-ABBRHS-PQSAFE .
   red se-lm4(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) implies se-lm4(skeyex(s,r1,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15),a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) .
 close
 
---> Time taken is 7731ms
+--> Time taken is 7162ms

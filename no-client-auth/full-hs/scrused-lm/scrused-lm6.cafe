@@ -3931,4 +3931,4 @@ open PROP-FULLHS .
   red scrused-lm6(s,pk,pk',r,r2) implies scrused-lm6(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),pk,pk',r,r2) .
 close
 
---> Time taken is 6454ms
+--> Time taken is 5842ms

@@ -7758,4 +7758,4 @@ open PROP-FULLHS .
   red auth-lm2(s,a,b,k,k',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) implies auth-lm2(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),a,b,k,k',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
 close
 
---> Time taken is 9118ms
+--> Time taken is 7375ms

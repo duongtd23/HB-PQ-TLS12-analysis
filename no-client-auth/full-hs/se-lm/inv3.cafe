@@ -3103,4 +3103,4 @@ open PROP-FULLHS .
   red inv3(s) implies inv3(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12)) .
 close
 
---> Time taken is 6450ms
+--> Time taken is 5625ms

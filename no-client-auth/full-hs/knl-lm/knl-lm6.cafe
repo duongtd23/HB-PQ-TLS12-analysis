@@ -3433,4 +3433,4 @@ open PROP-FULLHS-PQSAFE .
   red knl-lm6(s,k',k2') implies knl-lm6(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',k2') .
 close
 
---> Time taken is 6547ms
+--> Time taken is 6089ms

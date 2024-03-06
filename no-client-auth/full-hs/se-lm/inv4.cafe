@@ -4289,4 +4289,4 @@ open PROP-FULLHS-PQSAFE .
   red inv4(s,a,b,b2,cspk,pspk) implies inv4(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),a,b,b2,cspk,pspk) .
 close
 
---> Time taken is 7168ms
+--> Time taken is 6350ms

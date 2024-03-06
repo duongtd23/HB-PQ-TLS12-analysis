@@ -4162,4 +4162,4 @@ open PROP-FULLHS .
   red knl-lm3(s,k,k',k2,k2',r,r2) implies knl-lm3(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),k,k',k2,k2',r,r2) .
 close
 
---> Time taken is 6055ms
+--> Time taken is 5899ms

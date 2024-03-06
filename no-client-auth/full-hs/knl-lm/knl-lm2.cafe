@@ -3451,4 +3451,4 @@ open PROP-FULLHS .
   red knl-lm2(s,ms,rs) implies knl-lm2(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),ms,rs) .
 close
 
---> Time taken is 7443ms
+--> Time taken is 6582ms

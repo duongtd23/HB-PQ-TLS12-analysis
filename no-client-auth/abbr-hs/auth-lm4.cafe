@@ -5209,4 +5209,4 @@ open PROP-ABBRHS .
   red auth-lm4(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) implies auth-lm4(skeyex(s,r1,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15),a,b,pk,pk',k2,k2',r,r2,r3,r4,i,dl) .
 close
 
---> Time taken is 7371ms
+--> Time taken is 5920ms

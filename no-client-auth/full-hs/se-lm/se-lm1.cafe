@@ -8392,4 +8392,4 @@ open PROP-FULLHS .
   red se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?n2) implies se-lm1(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?n2) .
 close
 
---> Time taken is 8693ms
+--> Time taken is 6914ms

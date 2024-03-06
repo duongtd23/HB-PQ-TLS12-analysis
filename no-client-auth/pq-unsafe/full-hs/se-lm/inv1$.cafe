@@ -3524,4 +3524,4 @@ open PROP-FULLHS-CLSAFE .
   red inv1$(s,b,cspk) implies inv1$(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),b,cspk) .
 close
 
---> Time taken is 6795ms
+--> Time taken is 5943ms

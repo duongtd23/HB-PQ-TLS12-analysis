@@ -6405,4 +6405,4 @@ open PROP-FULLHS-CLSAFE .
   red auth-lm1$(s,a,b,b2,?a,pk,pk',r,r2,sign3,n,?m) implies auth-lm1$(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),a,b,b2,?a,pk,pk',r,r2,sign3,n,?m) .
 close
 
---> Time taken is 8876ms
+--> Time taken is 9219ms

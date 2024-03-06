@@ -3270,4 +3270,4 @@ open PROP-FULLHS .
   red scrused-lm4(s,pk') implies scrused-lm4(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),pk') .
 close
 
---> Time taken is 6195ms
+--> Time taken is 5595ms

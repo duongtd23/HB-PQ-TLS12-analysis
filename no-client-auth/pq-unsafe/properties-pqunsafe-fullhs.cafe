@@ -1,6 +1,12 @@
+-- This file requires the preloading file `no-client-auth/properties-full-hs.cafe`.
+
 -- load no-client-auth/properties-full-hs.cafe
 
-** define properties in case kems are unsafe, while ECDH is safe **
+** We consider the case when PQ primitives (KEMs and signatures) are unsafe, 
+**  while classical primitives (ECDH,RSA,ECDHSA) are safe.
+** Define additional lemmas in this case wrt full handshake.
+** Those lemmas are used to prove some properties and lemmas, 
+**  which are defined in module PROP-FULLHS, wrt module PROP-FULLHS-CLSAFE.
 mod* PROP-FULLHS-CLSAFE {
   pr(PROP-FULLHS)
   pr(KEM-UNSAFE-CONFIG)
@@ -18,9 +24,9 @@ mod* PROP-FULLHS-CLSAFE {
   vars CSPK : ClSignPubK
   vars DL RS : DataL
 
-** lemmas **
 ** secrecy helper lemmas **
 -- ephSe + se-lm1 + knl-lm7 + knl-lm6$, no ind
+-- this is the counterpart of se-lm2 in module PROP-FULLHS-PQSAFE 
   op se-lm2$ : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
     Rand Rand ClSignPubK PqSignPubK Data Data Data Data DataL -> Bool
   eq se-lm2$(S,A,B,PK,PK',K2,K2',R,R2,CSPK,PSPK,SIGN,SIGN2,SIGN3,SIGN4,DL) = 

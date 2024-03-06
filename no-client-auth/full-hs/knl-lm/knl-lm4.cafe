@@ -4497,4 +4497,4 @@ open PROP-FULLHS-PQSAFE .
   red knl-lm4(s,b,pk,pk',r,r2) implies knl-lm4(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),b,pk,pk',r,r2) .
 close
 
---> Time taken is 7353ms
+--> Time taken is 6639ms

@@ -4940,4 +4940,4 @@ open PROP-ABBRHS .
   red scrused-lm10(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) implies scrused-lm10(skeyex(s,r1,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15),a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) .
 close
 
---> Time taken is 6167ms
+--> Time taken is 5644ms

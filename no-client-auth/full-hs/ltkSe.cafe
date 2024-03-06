@@ -3270,4 +3270,4 @@ open PROP-FULLHS .
   red ltkSe(s,a) implies ltkSe(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),a) .
 close
 
---> Time taken is 6120ms
+--> Time taken is 5556ms

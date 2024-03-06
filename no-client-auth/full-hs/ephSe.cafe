@@ -5006,4 +5006,4 @@ open PROP-FULLHS-PQSAFE .
   red ephSe(s,a,b,pk',k2,k2',n) implies ephSe(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),a,b,pk',k2,k2',n) .
 close
 
---> Time taken is 7180ms
+--> Time taken is 6332ms

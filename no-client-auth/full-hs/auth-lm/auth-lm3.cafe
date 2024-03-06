@@ -5722,4 +5722,4 @@ open PROP-FULLHS .
   red auth-lm3(s,a,b,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl) implies auth-lm3(skeyex(s,r1,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13),a,b,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl) .
 close
 
---> Time taken is 7319ms
+--> Time taken is 6323ms
