@@ -1,0 +1,40 @@
+-- This file requires the preloading file `no-pq-sign/pqtls-nopqsign.cafe`.
+
+-- load no-pq-sign/pqtls-nopqsign.cafe .
+
+** Defining desired security properties
+mod* PROP {
+  pr(PQTLS + INTRUDER-CAPABILITIES)
+
+  var S : Sys
+  vars A A2 B B2 ?A : Prin
+  vars R R2 : Rand
+  var PK : EcPublicK
+  var PK' : PqPublicK
+  var K2' : PqSecretK
+  var K2 : EcSecretK
+  vars SIGN SIGN2 : Data
+  vars N N2 ?M : Nat
+  var CSPK : ClSignPubK
+  var DL : DataL
+
+-- Both ECDH and classical signature scheme can be broken by (quantum) intruder
+  eq ecdhSafe = false .
+  eq clSignSafe = false .
+
+-- Server authentication property
+  op auth : Sys Prin Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand DataL ClSignPubK Data Data Nat -> Bool
+  eq auth(S,A,B,?A,PK,PK',K2,K2',R,R2,DL,CSPK,SIGN,SIGN2,?M) = 
+   (not(A = intru or B = intru) and 
+    cfM(A,A,B, enc(
+      hsckey(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R || R2), 
+      h(A || B || DL || CSPK || SIGN || 
+        PK || PK' || SIGN2 ||
+        ecPublic(K2) || encapsC(PK',K2')))) \in nw(S) and
+    not(ltkRevealed(S,B)))
+   implies
+    skexM(B,B,?A, PK || PK' || SIGN2, ?M) \in nw(S) .
+}

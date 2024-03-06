@@ -1,0 +1,686 @@
+-- This file requires the preloading file `common.cafe`.
+-- Type command `load common.cafe .` directly in CafeInMaude shell, or
+--  place the command at the top of this file (uncomment the line below).
+-- Note that if you use original CafeOBJ, `in` must be used instead of `load`.
+-- For better performance, we recommend using CafeInMaude.
+
+-- load common.cafe .
+
+** This file mainly contains the specification of 
+** abbreviated handshake and intruder capabilities (check README first)
+
+-- Abbreviated handshake specification
+mod* PROTOCOL-ABBR {
+  pr(NETWORK + SESSION)
+  pr(SET(D <= TRIV2DATA)*{sort Set -> DataSet})
+  [Sys]
+
+-- Initial state
+  op init : -> Sys {constr}
+-- Observational functions (check our paper Section IV)
+  op nw : Sys -> Network
+  op udata : Sys -> DataSet
+  op time : Sys -> Nat
+  op knl : Sys -> DataL
+  op scrLeaked : Sys -> DataSet
+  op ss : Sys Prin Prin Sid -> Session
+
+  var S : Sys
+  vars A B A2 B2 A9 B9 : Prin 
+  vars CSs : Suites
+  vars CS CS2 : Suite
+  vars EN : PqCipher
+  vars R R2 : Rand
+  vars I I2 I9 : Sid
+  vars V V2 : Version
+  vars D MS : Data
+  vars LSKT : PriKeyTime
+  var LSKTS : DataSet
+  var LSK : SignPriK
+
+-- Configuration, whether or not KEMs, ECDH, 
+--  classical signatures, PQ signatures are safe
+  op kemSafe : -> Bool
+  op ecdhSafe : -> Bool
+  op clSignSafe : -> Bool
+  op pqSignSafe : -> Bool
+
+-- Auxiliary operators
+--  Check if the given long-term private key exists in the revealed set
+  op _\in'_ : SignPriK DataSet -> Bool .
+--  Time when the given long-term private key is revealed
+  op timeLeak : SignPriK DataSet -> Nat .
+  eq LSK \in' empty = false .
+  eq LSK \in' (LSKT ; LSKTS) = 
+    (LSK = priK(LSKT)) or (LSK \in' LSKTS) .
+  ceq LSK \in' (D ; LSKTS) = (LSK \in' LSKTS)
+    if isBTnotPKT(D) .
+  eq timeLeak(LSK, empty) = 0 .
+  eq timeLeak(LSK, (LSKT ; LSKTS)) = 
+    (if (LSK = priK(LSKT))
+     then time(LSKT)
+     else timeLeak(LSK, LSKTS)
+     fi) .
+  ceq timeLeak(LSK, (D ; LSKTS)) = timeLeak(LSK, LSKTS)
+    if isBTnotPKT(D) .
+
+-- Initial state definition
+  eq nw(init) = void .
+  eq udata(init) = empty .
+  eq ss(init,A,B,I) = none .
+  eq time(init) = 0 .
+  eq scrLeaked(init) = empty .
+  eq knl(init) = (clSignPriK(intru) || clSignPubK(intru) || 
+    pqSignPriK(intru) || pqSignPubK(intru)) .
+
+** signatures of transitions modeling abbreviated handshake **
+  op chello2 : Sys Prin Prin Version Rand Sid Suites Suite Data -> Sys {constr}
+  op shello2 : Sys Rand
+    Prin Prin Prin Version Rand Sid Suites Suite Data -> Sys {constr}
+  op sChangeCS2 : Sys
+    Prin Prin Version Rand Sid Rand Suite -> Sys {constr}
+  op sfinish2 : Sys
+    Prin Prin Prin Version Rand Sid Suites 
+    Suite Data Rand -> Sys {constr}
+  op cChangeCS2 : Sys
+    Prin Prin Version Rand Sid Suites 
+    Prin Suite Data Rand -> Sys {constr}
+  op cfinish2 : Sys
+    Prin Prin Version Rand Sid Suites 
+    Prin Suite Data Rand -> Sys {constr}
+  op helloReq : Sys Prin Prin -> Sys {constr}
+
+
+-- Client A sends a ClientHello message (of abbreviated handshake) to B
+  op c-chello2 : Sys Prin Prin Version Rand Sid Suites Suite Data -> Bool
+-- Effective condition states that the session must be non-null
+  eq c-chello2(S,A,B,V,R,I,CSs,CS,MS) = 
+    ((ss(S,A,B,I) = session(client,CS,MS)) and
+     not(R \in udata(S)) and contains(CSs,CS)) .
+  ceq nw(chello2(S,A,B,V,R,I,CSs,CS,MS)) =
+      (ch2M(A,A,B, V || R || I || CSs) , nw(S)) 
+    if c-chello2(S,A,B,V,R,I,CSs,CS,MS) .
+  ceq udata(chello2(S,A,B,V,R,I,CSs,CS,MS)) = (R ; udata(S)) 
+    if c-chello2(S,A,B,V,R,I,CSs,CS,MS) .
+  eq ss(chello2(S,A,B,V,R,I,CSs,CS,MS),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(chello2(S,A,B,V,R,I,CSs,CS,MS)) = time(S) .
+  ceq knl(chello2(S,A,B,V,R,I,CSs,CS,MS)) =
+      (V || R || I || CSs || knl(S)) 
+    if c-chello2(S,A,B,V,R,I,CSs,CS,MS) .
+  eq scrLeaked(chello2(S,A,B,V,R,I,CSs,CS,MS)) = scrLeaked(S) .
+  ceq chello2(S,A,B,V,R,I,CSs,CS,MS) = S 
+    if not c-chello2(S,A,B,V,R,I,CSs,CS,MS) .
+
+-- Server B sends a ServerHello message to A
+  op c-shello2 : Sys Rand
+    Prin Prin Prin Version Rand Sid Suites Suite Data -> Bool
+  eq c-shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) = 
+    (ch2M(A2,A,B, V || R || I || CSs) \in nw(S) and
+     (ss(S,B,A,I) = session(server,CS,MS)) and
+     not(R2 \in udata(S)) and contains(CSs,CS)) .
+  ceq nw(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS)) =
+      (sh2M(B,B,A, V || R2 || I || CS) , nw(S)) 
+    if c-shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) .
+  ceq udata(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS)) = (R2 ; udata(S)) 
+    if c-shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) .
+  eq ss(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS),A9,B9,I9) 
+    = ss(S,A9,B9,I9) .
+  eq time(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS)) = time(S) .
+  ceq knl(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS)) =
+      (V || R2 || I || CS || knl(S)) 
+    if c-shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) .
+  eq scrLeaked(shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS)) = scrLeaked(S) .
+  ceq shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) = S 
+    if not c-shello2(S,R2,A2,A,B,V,R,I,CSs,CS,MS) .
+
+-- Server sends a change cipher spec message
+  op c-sChangeCS2 : Sys
+    Prin Prin Version Rand Sid Rand Suite -> Bool
+  eq c-sChangeCS2(S,A,B,V,R,I,R2,CS) = 
+    sh2M(B,B,A, V || R2 || I || CS) \in nw(S) .
+  ceq nw(sChangeCS2(S,A,B,V,R,I,R2,CS)) =
+      (ccsM(B,B,A) , nw(S))
+    if c-sChangeCS2(S,A,B,V,R,I,R2,CS) .
+  eq udata(sChangeCS2(S,A,B,V,R,I,R2,CS)) = udata(S) .
+  eq ss(sChangeCS2(S,A,B,V,R,I,R2,CS),A9,B9,I9) 
+    = ss(S,A9,B9,I9) .
+  eq time(sChangeCS2(S,A,B,V,R,I,R2,CS)) = time(S) .
+  eq knl(sChangeCS2(S,A,B,V,R,I,R2,CS)) = knl(S) .
+  eq scrLeaked(sChangeCS2(S,A,B,V,R,I,R2,CS)) = scrLeaked(S) .
+  ceq sChangeCS2(S,A,B,V,R,I,R2,CS) = S 
+    if not c-sChangeCS2(S,A,B,V,R,I,R2,CS) .
+
+-- Server sends a Finished message
+  op c-sfinish2 : Sys
+    Prin Prin Prin Version Rand Sid Suites 
+    Suite Data Rand -> Bool
+  eq c-sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2) = 
+    ((ss(S,B,A,I) = session(server,CS,MS)) and
+     ch2M(A2,A,B, V || R || I || CSs) \in nw(S) and
+     sh2M(B,B,A, V || R2 || I || CS) \in nw(S)) .
+  ceq nw(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2)) =
+      (sf2M(B,B,A,enc(
+          hsskey2(MS, R || R2),
+          h(A || B || I || CS || V || R || CSs || R2)
+        )) , nw(S)) 
+    if c-sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2) .
+  eq udata(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2)) = udata(S) .
+  eq ss(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2),A9,B9,I9) 
+    = ss(S,A9,B9,I9) .
+  eq time(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2)) = time(S) .
+  ceq knl(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2)) =
+      (enc(hsskey2(MS, R || R2),
+          h(A || B || I || CS || V || R || CSs || R2)) 
+      || knl(S)) 
+    if c-sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2) .
+  eq scrLeaked(sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2)) = scrLeaked(S) .
+  ceq sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2) = S 
+    if not c-sfinish2(S,A2,A,B,V,R,I,CSs,CS,MS,R2) .
+
+-- Client sends a change cipher spec message
+  op c-cChangeCS2 : Sys
+    Prin Prin Version Rand Sid Suites 
+    Prin Suite Data Rand -> Bool
+  eq c-cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) = 
+    ((ss(S,A,B,I) = session(client,CS,MS)) and
+     ch2M(A,A,B, V || R || I || CSs) \in nw(S) and
+     sh2M(B2,B,A, V || R2 || I || CS) \in nw(S) and
+     sf2M(B2,B,A,enc(
+        hsskey2(MS, R || R2),
+        h(A || B || I || CS || V || R || CSs || R2)))
+      \in nw(S)) .
+  ceq nw(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) =
+      (ccsM(A,A,B), nw(S)) 
+    if c-cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+  eq udata(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = udata(S) .
+  eq ss(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2),A9,B9,I9) 
+    = ss(S,A9,B9,I9) .
+  eq time(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = time(S) .
+  eq knl(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = knl(S) .
+  eq scrLeaked(cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = scrLeaked(S) .
+  ceq cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) = S 
+    if not c-cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+
+-- Client sends a Finished message
+  op c-cfinish2 : Sys
+    Prin Prin Version Rand Sid Suites 
+    Prin Suite Data Rand -> Bool
+  eq c-cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) = 
+    c-cChangeCS2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+  ceq nw(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) =
+      (cf2M(A,A,B,enc(hsckey2(MS, R || R2),
+          h(A || B || I || CS || V || R || CSs || R2)
+        )) , nw(S)) 
+    if c-cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+  eq udata(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = udata(S) .
+  eq ss(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2),A9,B9,I9) 
+    = ss(S,A9,B9,I9) .
+  eq time(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = time(S) .
+  ceq knl(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) =
+      (enc(hsckey2(MS, R || R2),
+          h(A || B || I || CS || V || R || CSs || R2)) 
+      || knl(S)) 
+    if c-cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+  eq scrLeaked(cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2)) = scrLeaked(S) .
+  ceq cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) = S 
+    if not c-cfinish2(S,A,B,V,R,I,CSs,B2,CS,MS,R2) .
+
+-- Server sends a HelloRequest message to a client (before ClientHello)
+  eq nw(helloReq(S,A,B)) = (heReM(B,B,A) , nw(S)) .
+  eq udata(helloReq(S,A,B)) = udata(S) .
+  eq ss(helloReq(S,A,B),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(helloReq(S,A,B)) = time(S) .
+  eq knl(helloReq(S,A,B)) = knl(S) .
+  eq scrLeaked(helloReq(S,A,B)) = scrLeaked(S) .
+}
+
+-- Intruder capability specification
+mod* INTRUDER-CAPABILITIES {
+  ex(PROTOCOL-ABBR)
+
+  var S : Sys
+  vars A B A2 B2 A3 B3 A9 B9 : Prin 
+  vars CSs : Suites
+  vars CS CS2 : Suite
+  vars K K2 : EcSecretK
+  vars K' K2' : PqSecretK
+  vars PK PK2 : EcPublicK
+  vars PK' PK2' : PqPublicK
+  vars EN : PqCipher
+  vars R R2 : Rand
+  vars I I2 I9 : Sid
+  vars KEMs : PqKemParams
+  vars V V2 : Version
+  vars N N2 : Nat
+  vars D SIGN SIGN2 HSK MS : Data
+  vars DL DL2 : DataL
+  var CSPK : ClSignPubK
+  var PSPK : PqSignPubK
+  var CSSK : ClSignPriK
+  var PSSK : PqSignPriK
+
+** Breaking the security of cryptographic primitives
+-- Breaking classical digital signature algorithm
+  op brkClSign : Sys Prin -> Sys {constr}
+  op c-brkClSign : Sys Prin -> Bool
+  eq c-brkClSign(S,A) = not clSignSafe .
+  eq nw(brkClSign(S,A)) = nw(S) . 
+  eq udata(brkClSign(S,A)) = udata(S) . 
+  eq ss(brkClSign(S,A),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(brkClSign(S,A)) = time(S) . 
+  ceq knl(brkClSign(S,A)) = (clSignPriK(A) || knl(S)) 
+    if c-brkClSign(S,A) . 
+  eq scrLeaked(brkClSign(S,A)) = scrLeaked(S) .
+  ceq brkClSign(S,A) = S if not c-brkClSign(S,A) .
+
+-- Breaking ECDH
+  op brkECDH : Sys EcPublicK -> Sys {constr}
+  op c-brkECDH : Sys EcPublicK -> Bool
+  eq c-brkECDH(S,PK) = (PK \in knl(S) and not ecdhSafe) .
+  eq nw(brkECDH(S,PK)) = nw(S) . 
+  eq udata(brkECDH(S,PK)) = udata(S) . 
+  eq ss(brkECDH(S,PK),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(brkECDH(S,PK)) = time(S) . 
+  ceq knl(brkECDH(S,PK)) = (ecSecret(PK) || knl(S)) 
+    if c-brkECDH(S,PK) . 
+  eq scrLeaked(brkECDH(S,PK)) = scrLeaked(S) .
+  ceq brkECDH(S,PK) = S if not c-brkECDH(S,PK) .
+
+-- KEM might be insecure since it is relatively new
+  op brkKEM : Sys PqPublicK -> Sys {constr}
+  op c-brkKEM : Sys PqPublicK -> Bool
+  eq c-brkKEM(S,PK') = (PK' \in knl(S) and not kemSafe) .
+  eq nw(brkKEM(S,PK')) = nw(S) . 
+  eq udata(brkKEM(S,PK')) = udata(S) . 
+  eq ss(brkKEM(S,PK'),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(brkKEM(S,PK')) = time(S) . 
+  ceq knl(brkKEM(S,PK')) = (pqSecret(PK') || knl(S))
+    if c-brkKEM(S,PK') . 
+  eq scrLeaked(brkKEM(S,PK')) = scrLeaked(S) .
+  ceq brkKEM(S,PK') = S if not c-brkKEM(S,PK') .
+
+  op brkKEM2 : Sys PqCipher -> Sys {constr}
+  op c-brkKEM2 : Sys PqCipher -> Bool
+  eq c-brkKEM2(S,EN) = (EN \in knl(S) and not kemSafe) .
+  eq nw(brkKEM2(S,EN)) = nw(S) . 
+  eq udata(brkKEM2(S,EN)) = udata(S) . 
+  eq ss(brkKEM2(S,EN),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(brkKEM2(S,EN)) = time(S) . 
+  ceq knl(brkKEM2(S,EN)) = (pqSecret(EN) || knl(S))
+    if c-brkKEM2(S,EN) . 
+  eq scrLeaked(brkKEM2(S,EN)) = scrLeaked(S) .
+  ceq brkKEM2(S,EN) = S if not c-brkKEM2(S,EN) .
+
+-- Similarly, post-quantum digital signature algorithms might be unsafe
+  op brkPqSign : Sys Prin -> Sys {constr}
+  op c-brkPqSign : Sys Prin -> Bool
+  eq c-brkPqSign(S,A) = not pqSignSafe .
+  eq nw(brkPqSign(S,A)) = nw(S) . 
+  eq udata(brkPqSign(S,A)) = udata(S) . 
+  eq ss(brkPqSign(S,A),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(brkPqSign(S,A)) = time(S) . 
+  ceq knl(brkPqSign(S,A)) = (pqSignPriK(A) || knl(S)) 
+    if c-brkPqSign(S,A) . 
+  eq scrLeaked(brkPqSign(S,A)) = scrLeaked(S) .
+  ceq brkPqSign(S,A) = S if not c-brkPqSign(S,A) .
+
+** Secret compromise **
+-- Reveal of classical private signature signing keys (long-term private keys)
+  op rvClSignK : Sys Prin -> Sys {constr}
+  op c-rvClSignK : Sys Prin -> Bool
+  eq c-rvClSignK(S,A) = 
+    not(A = ca or clSignPriK(A) \in' scrLeaked(S)) .
+  eq nw(rvClSignK(S,A)) = nw(S) . 
+  eq udata(rvClSignK(S,A)) = udata(S) . 
+  eq ss(rvClSignK(S,A),A9,B9,I9) = ss(S,A9,B9,I9) .
+  ceq time(rvClSignK(S,A)) = s(time(S)) if c-rvClSignK(S,A) . 
+  ceq knl(rvClSignK(S,A)) = (clSignPriK(A) || knl(S)) 
+    if c-rvClSignK(S,A) . 
+  ceq scrLeaked(rvClSignK(S,A)) = 
+      (pkNPair(clSignPriK(A), time(S)) ; scrLeaked(S)) 
+    if c-rvClSignK(S,A) . 
+  ceq rvClSignK(S,A) = S if not c-rvClSignK(S,A) .
+
+-- Reveal of PQ private signature signing keys (long-term private keys)
+  op rvPqSignK : Sys Prin -> Sys {constr}
+  op c-rvPqSignK : Sys Prin -> Bool
+  eq c-rvPqSignK(S,A) = 
+    not(A = ca or pqSignPriK(A) \in' scrLeaked(S)) .
+  eq nw(rvPqSignK(S,A)) = nw(S) . 
+  eq udata(rvPqSignK(S,A)) = udata(S) . 
+  eq ss(rvPqSignK(S,A),A9,B9,I9) = ss(S,A9,B9,I9) .
+  ceq time(rvPqSignK(S,A)) = s(time(S)) if c-rvPqSignK(S,A) . 
+  ceq knl(rvPqSignK(S,A)) = (pqSignPriK(A) || knl(S)) 
+    if c-rvPqSignK(S,A) . 
+  ceq scrLeaked(rvPqSignK(S,A)) = 
+      (pkNPair(pqSignPriK(A), time(S)) ; scrLeaked(S)) 
+    if c-rvPqSignK(S,A) . 
+  ceq rvPqSignK(S,A) = S if not c-rvPqSignK(S,A) .
+
+** Generating new fresh values
+-- Randomly selecting an ECDH secret key
+  op gEcSecretK : Sys EcSecretK -> Sys {constr}
+  op c-gEcSecretK : Sys EcSecretK -> Bool
+  eq c-gEcSecretK(S,K) = not(K \in udata(S)) .
+  eq nw(gEcSecretK(S,K)) = nw(S) .
+  ceq udata(gEcSecretK(S,K)) = (K ; udata(S))
+    if c-gEcSecretK(S,K) .
+  eq ss(gEcSecretK(S,K),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gEcSecretK(S,K)) = time(S) .
+  eq scrLeaked(gEcSecretK(S,K)) = scrLeaked(S) .
+  ceq knl(gEcSecretK(S,K)) = (K || ecPublic(K) || knl(S))
+    if c-gEcSecretK(S,K) .
+  ceq gEcSecretK(S,K) = S 
+    if not c-gEcSecretK(S,K) .
+
+-- Randomly selecting a KEM secret key
+  op gPqSecretK : Sys PqSecretK -> Sys {constr}
+  op c-gPqSecretK : Sys PqSecretK -> Bool
+  eq c-gPqSecretK(S,K') = not(K' \in udata(S)) .
+  eq nw(gPqSecretK(S,K')) = nw(S) .
+  ceq udata(gPqSecretK(S,K')) = (K' ; udata(S))
+    if c-gPqSecretK(S,K') .
+  eq ss(gPqSecretK(S,K'),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gPqSecretK(S,K')) = time(S) .
+  eq scrLeaked(gPqSecretK(S,K')) = scrLeaked(S) .
+  ceq knl(gPqSecretK(S,K')) = (K' || keygen(K') || knl(S))
+    if c-gPqSecretK(S,K') .
+  ceq gPqSecretK(S,K') = S 
+    if not c-gPqSecretK(S,K') .
+
+-- Know all possible values of basic data types
+  op gBasic : Sys Version Suites Suite ClSignPubK Prin PqKemParams -> Sys {constr}
+  eq nw(gBasic(S,V,CSs,CS,CSPK,A,KEMs)) = nw(S) .
+  eq udata(gBasic(S,V,CSs,CS,CSPK,A,KEMs)) = udata(S) .
+  eq ss(gBasic(S,V,CSs,CS,CSPK,A,KEMs),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gBasic(S,V,CSs,CS,CSPK,A,KEMs)) = time(S) .
+  eq scrLeaked(gBasic(S,V,CSs,CS,CSPK,A,KEMs)) = scrLeaked(S) .
+  eq knl(gBasic(S,V,CSs,CS,CSPK,A,KEMs)) = 
+    (V || CSs || CSPK || CS || A || KEMs || knl(S)) .
+
+  op gBasic2 : Sys Sid Rand -> Sys {constr}
+  op c-gBasic2 : Sys Sid Rand -> Bool
+  eq c-gBasic2(S,I,R) = not(R \in udata(S) or I \in udata(S)) .
+  eq nw(gBasic2(S,I,R)) = nw(S) .
+  eq udata(gBasic2(S,I,R)) = udata(S) .
+  eq ss(gBasic2(S,I,R),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gBasic2(S,I,R)) = time(S) .
+  eq scrLeaked(gBasic2(S,I,R)) = scrLeaked(S) .
+  ceq knl(gBasic2(S,I,R)) = (I || R || knl(S))
+    if c-gBasic2(S,I,R) .
+  ceq gBasic2(S,I,R) = S if not c-gBasic2(S,I,R) .
+
+-- Computing an ECDH shared secret
+  op gEcShare : Sys EcSecretK EcPublicK -> Sys {constr}
+  op c-gEcShare : Sys EcSecretK EcPublicK -> Bool
+  eq c-gEcShare(S,K,PK) = (K \in knl(S) and PK \in knl(S)) .
+  eq nw(gEcShare(S,K,PK)) = nw(S) . 
+  eq udata(gEcShare(S,K,PK)) = udata(S) . 
+  eq ss(gEcShare(S,K,PK),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gEcShare(S,K,PK)) = time(S) . 
+  eq scrLeaked(gEcShare(S,K,PK)) = scrLeaked(S) . 
+  ceq knl(gEcShare(S,K,PK)) = (ecShare(PK,K) || knl(S)) 
+    if c-gEcShare(S,K,PK) . 
+  ceq gEcShare(S,K,PK) = S 
+    if not c-gEcShare(S,K,PK) .
+
+-- Computing a KEM shared secret, KEM ciphertext
+  op gPqShare : Sys PqSecretK PqPublicK -> Sys {constr}
+  op c-gPqShare : Sys PqSecretK PqPublicK -> Bool
+  eq c-gPqShare(S,K',PK') = (K' \in knl(S) and PK' \in knl(S)) .
+  eq nw(gPqShare(S,K',PK')) = nw(S) . 
+  eq udata(gPqShare(S,K',PK')) = udata(S) . 
+  eq ss(gPqShare(S,K',PK'),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gPqShare(S,K',PK')) = time(S) . 
+  eq scrLeaked(gPqShare(S,K',PK')) = scrLeaked(S) . 
+  ceq knl(gPqShare(S,K',PK')) = 
+      (encapsK(PK',K') || encapsC(PK',K') || knl(S)) 
+    if c-gPqShare(S,K',PK') . 
+  ceq gPqShare(S,K',PK') = S 
+    if not c-gPqShare(S,K',PK') .
+
+-- Performing Decaps
+  op gDecaps : Sys PqSecretK PqCipher -> Sys {constr}
+  op c-gDecaps : Sys PqSecretK PqCipher -> Bool
+  eq c-gDecaps(S,K',EN) = (K' \in knl(S) and EN \in knl(S)) .
+  eq nw(gDecaps(S,K',EN)) = nw(S) . 
+  eq udata(gDecaps(S,K',EN)) = udata(S) . 
+  eq ss(gDecaps(S,K',EN),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gDecaps(S,K',EN)) = time(S) . 
+  eq scrLeaked(gDecaps(S,K',EN)) = scrLeaked(S) . 
+  ceq knl(gDecaps(S,K',EN)) = 
+      (decaps(EN,K') || knl(S)) 
+    if c-gDecaps(S,K',EN) . 
+  ceq gDecaps(S,K',EN) = S 
+    if not c-gDecaps(S,K',EN) .
+
+** Use any cryptographic primitive function
+** with any available information as input to learn the output
+-- Hash anything
+  op g1 : Sys DataL -> Sys {constr}
+  op c-g1 : Sys DataL -> Bool
+  eq c-g1(S,DL) = DL \in knl(S) .
+  eq nw(g1(S,DL)) = nw(S) .
+  eq udata(g1(S,DL)) = udata(S) .
+  eq ss(g1(S,DL),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(g1(S,DL)) = time(S) .
+  eq scrLeaked(g1(S,DL)) = scrLeaked(S) .
+  ceq knl(g1(S,DL)) = (h(DL) || knl(S)) 
+    if c-g1(S,DL) .
+  ceq g1(S,DL) = S if not c-g1(S,DL) .
+
+-- Sign anything
+  op gSign : Sys ClSignPriK Data -> Sys {constr}
+  op c-gSign : Sys ClSignPriK Data -> Bool
+  eq c-gSign(S,CSSK,D) = (CSSK \in knl(S) and D \in knl(S)) .
+  eq nw(gSign(S,CSSK,D)) = nw(S) .
+  eq udata(gSign(S,CSSK,D)) = udata(S) .
+  eq ss(gSign(S,CSSK,D),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gSign(S,CSSK,D)) = time(S) .
+  eq scrLeaked(gSign(S,CSSK,D)) = scrLeaked(S) .
+  ceq knl(gSign(S,CSSK,D)) = 
+      (clsign(CSSK, D) || knl(S)) 
+    if c-gSign(S,CSSK,D) .
+  ceq gSign(S,CSSK,D) = S if not c-gSign(S,CSSK,D) .
+
+  op gPqSign : Sys PqSignPriK Data -> Sys {constr}
+  op c-gPqSign : Sys PqSignPriK Data -> Bool
+  eq c-gPqSign(S,PSSK,D) = (PSSK \in knl(S) and D \in knl(S)) .
+  eq nw(gPqSign(S,PSSK,D)) = nw(S) .
+  eq udata(gPqSign(S,PSSK,D)) = udata(S) .
+  eq ss(gPqSign(S,PSSK,D),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(gPqSign(S,PSSK,D)) = time(S) .
+  eq scrLeaked(gPqSign(S,PSSK,D)) = scrLeaked(S) .
+  ceq knl(gPqSign(S,PSSK,D)) = 
+      (pqsign(PSSK, D) || knl(S)) 
+    if c-gPqSign(S,PSSK,D) .
+  ceq gPqSign(S,PSSK,D) = S if not c-gPqSign(S,PSSK,D) .
+
+-- Encrypt anything
+  op g21 : Sys Data Data -> Sys {constr}
+  op c-g21 : Sys Data Data -> Bool
+  eq c-g21(S,HSK,D) = (D \in knl(S) and HSK \in knl(S)) .
+  eq nw(g21(S,HSK,D)) = nw(S) .
+  eq udata(g21(S,HSK,D)) = udata(S) .
+  eq ss(g21(S,HSK,D),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(g21(S,HSK,D)) = time(S) .
+  eq scrLeaked(g21(S,HSK,D)) = scrLeaked(S) .
+  ceq knl(g21(S,HSK,D)) = 
+      (enc(HSK,D) || knl(S)) 
+    if c-g21(S,HSK,D) .
+  ceq g21(S,HSK,D) = S if not c-g21(S,HSK,D) .
+
+-- Compute handshake keys
+  op g22 : Sys Data DataL -> Sys {constr}
+  op c-g22 : Sys Data DataL -> Bool
+  eq c-g22(S,MS,DL) = (DL \in knl(S) and MS \in knl(S)) .
+  eq nw(g22(S,MS,DL)) = nw(S) .
+  eq udata(g22(S,MS,DL)) = udata(S) .
+  eq ss(g22(S,MS,DL),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(g22(S,MS,DL)) = time(S) .
+  eq scrLeaked(g22(S,MS,DL)) = scrLeaked(S) .
+  ceq knl(g22(S,MS,DL)) = 
+      (hsckey(MS,DL) || hsskey(MS,DL) ||
+       hsckey2(MS,DL) || hsskey2(MS,DL) || knl(S)) 
+    if c-g22(S,MS,DL) .
+  ceq g22(S,MS,DL) = S if not c-g22(S,MS,DL) .
+
+-- Compute master secrets
+  op g23 : Sys DataL DataL -> Sys {constr}
+  op c-g23 : Sys DataL DataL -> Bool
+  eq c-g23(S,DL,DL2) = (DL \in knl(S) and DL2 \in knl(S)) .
+  eq nw(g23(S,DL,DL2)) = nw(S) .
+  eq udata(g23(S,DL,DL2)) = udata(S) .
+  eq ss(g23(S,DL,DL2),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(g23(S,DL,DL2)) = time(S) .
+  eq scrLeaked(g23(S,DL,DL2)) = scrLeaked(S) .
+  ceq knl(g23(S,DL,DL2)) = 
+      (ms(DL,DL2) || knl(S)) 
+    if c-g23(S,DL,DL2) .
+  ceq g23(S,DL,DL2) = S if not c-g23(S,DL,DL2) .
+
+** Impersonating someone to send faking messages
+-- Sending faking Hello messages
+  op fkHello : Sys Prin Prin DataL -> Sys {constr}
+  op c-fkHello : Sys DataL -> Bool
+  eq c-fkHello(S,DL) = DL \in knl(S) .
+  ceq nw(fkHello(S,A,B,DL)) = 
+      (chM(intru,A,B, DL) , 
+       shM(intru,A,B, DL) ,
+       ch2M(intru,A,B,DL) ,
+       sh2M(intru,A,B,DL) ,
+       nw(S)) 
+    if c-fkHello(S,DL) .
+  eq udata(fkHello(S,A,B,DL)) = udata(S) .
+  eq ss(fkHello(S,A,B,DL),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(fkHello(S,A,B,DL)) = time(S) .
+  eq knl(fkHello(S,A,B,DL)) = knl(S) .
+  eq scrLeaked(fkHello(S,A,B,DL)) = scrLeaked(S) .
+  ceq fkHello(S,A,B,DL) = S     if not c-fkHello(S,DL) .
+
+-- Sending faking Certificate
+  op fkScert : Sys Prin Prin ClSignPubK Data PqSignPubK Data -> Sys {constr}
+  op c-fkScert : Sys ClSignPubK Data PqSignPubK Data -> Bool
+  eq c-fkScert(S,CSPK,SIGN,PSPK,SIGN2) =
+    (CSPK \in knl(S) and SIGN \in knl(S) and
+     PSPK \in knl(S) and SIGN2 \in knl(S)) .
+  ceq nw(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2)) = 
+      (certM(intru,A,B, A || CSPK || SIGN || PSPK || SIGN2) , nw(S))
+    if c-fkScert(S,CSPK,SIGN,PSPK,SIGN2) .
+  eq udata(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2)) = udata(S) .
+  eq ss(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2)) = time(S) .
+  eq knl(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2)) = knl(S) .
+  eq scrLeaked(fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2)) = scrLeaked(S) .
+  ceq fkScert(S,A,B,CSPK,SIGN,PSPK,SIGN2) = S
+    if not c-fkScert(S,CSPK,SIGN,PSPK,SIGN2) .
+
+  op fkSkeyex : Sys Prin Prin EcPublicK PqPublicK Data Data -> Sys {constr}
+  op c-fkSkeyex : Sys EcPublicK PqPublicK Data Data -> Bool
+  eq c-fkSkeyex(S,PK,PK',SIGN,SIGN2) =
+    (PK \in knl(S) and PK' \in knl(S) and 
+     SIGN \in knl(S) and SIGN2 \in knl(S)) .
+  ceq nw(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2)) = 
+      (skexM(intru,A,B, PK || PK' || SIGN || SIGN2, time(S)) , nw(S))
+    if c-fkSkeyex(S,PK,PK',SIGN,SIGN2) .
+  eq udata(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2)) = udata(S) .
+  eq ss(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2),A9,B9,I9) = ss(S,A9,B9,I9) .
+  ceq time(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2)) = s(time(S))
+    if c-fkSkeyex(S,PK,PK',SIGN,SIGN2) .
+  eq knl(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2)) = knl(S) .
+  eq scrLeaked(fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2)) = scrLeaked(S) .
+  ceq fkSkeyex(S,A,B,PK,PK',SIGN,SIGN2) = S
+    if not c-fkSkeyex(S,PK,PK',SIGN,SIGN2) .
+
+  op fkCkeyex : Sys Prin Prin EcPublicK PqCipher -> Sys {constr}
+  op c-fkCkeyex : Sys EcPublicK PqCipher -> Bool
+  eq c-fkCkeyex(S,PK,EN) =
+    (PK \in knl(S) and EN \in knl(S)) .
+  ceq nw(fkCkeyex(S,A,B,PK,EN)) = 
+      (ckexM(intru,A,B, PK || EN, time(S)) , nw(S))
+    if c-fkCkeyex(S,PK,EN) .
+  eq udata(fkCkeyex(S,A,B,PK,EN)) = udata(S) .
+  eq ss(fkCkeyex(S,A,B,PK,EN),A9,B9,I9) = ss(S,A9,B9,I9) .
+  ceq time(fkCkeyex(S,A,B,PK,EN)) = s(time(S))
+    if c-fkCkeyex(S,PK,EN) .
+  eq knl(fkCkeyex(S,A,B,PK,EN)) = knl(S) .
+  eq scrLeaked(fkCkeyex(S,A,B,PK,EN)) = scrLeaked(S) .
+  ceq fkCkeyex(S,A,B,PK,EN) = S
+    if not c-fkCkeyex(S,PK,EN) .
+
+-- Sending faking Finished messages
+  op fkFinish : Sys Prin Prin Data -> Sys {constr}
+  op c-fkfinish : Sys Data -> Bool
+  eq c-fkfinish(S,D) = (D \in knl(S)) .
+  ceq nw(fkFinish(S,A,B,D)) = 
+      (cfM(intru,A,B, D)  , 
+       sfM(intru,A,B, D)  ,
+       cf2M(intru,A,B, D) ,
+       sf2M(intru,A,B, D) ,
+       nw(S))
+    if c-fkfinish(S,D) .
+  eq udata(fkFinish(S,A,B,D)) = udata(S) .
+  eq ss(fkFinish(S,A,B,D),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(fkFinish(S,A,B,D)) = time(S) .
+  eq knl(fkFinish(S,A,B,D)) = knl(S) .
+  eq scrLeaked(fkFinish(S,A,B,D)) = scrLeaked(S) .
+  ceq fkFinish(S,A,B,D) = S
+    if not c-fkfinish(S,D) .
+
+-- Faking other messages
+  op fkNoti : Sys Prin Prin -> Sys {constr}
+  eq nw(fkNoti(S,B,A)) = 
+    (shDnM(intru,B,A)    , 
+     certReqM(intru,B,A) , 
+     ccsM(intru,B,A)     , nw(S)) .
+  eq udata(fkNoti(S,B,A)) = udata(S) .
+  eq ss(fkNoti(S,B,A),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(fkNoti(S,B,A)) = time(S) .
+  eq knl(fkNoti(S,B,A)) = knl(S) .
+  eq scrLeaked(fkNoti(S,B,A)) = scrLeaked(S) .
+
+** Macros 
+-- Classical and PQ private signature signing key was revealed
+  op clSignKRevealed : Sys Prin -> Bool
+  op pqSignKRevealed : Sys Prin -> Bool
+  eq clSignKRevealed(S,B) = (clSignPriK(B) \in' scrLeaked(S)) .
+  eq pqSignKRevealed(S,B) = (pqSignPriK(B) \in' scrLeaked(S)) .
+-- compromise of long-term private keys is defined depending on
+-- which signature (classical or PQ one) is supposed to be safe
+  op ltkRevealed : Sys Prin -> Bool
+  op revealedAfterN : Sys Prin Nat -> Bool
+}
+-- In case ECDH can be broken, and KEMs are safe
+mod* ECDH-UNSAFE-CONFIG {
+  pr(INTRUDER-CAPABILITIES)
+  vars A B : Prin
+  var N : Nat
+  var S : Sys
+-- ECDH and classical digital signature can be broken
+  eq ecdhSafe = false .
+  eq clSignSafe = false .
+-- KEMs and post-quantum signature are safe
+  eq kemSafe = true .
+  eq pqSignSafe = true .
+-- revealing of long-term private key is defined as
+  eq ltkRevealed(S,B) = pqSignKRevealed(S,B) .
+  eq revealedAfterN(S,B,N) = 
+    (N < timeLeak(pqSignPriK(B), scrLeaked(S))) .
+}
+-- In case KEMs are unsafe, while ECDH is safe
+mod* KEM-UNSAFE-CONFIG {
+  pr(INTRUDER-CAPABILITIES)
+  vars A B : Prin
+  var N : Nat
+  var S : Sys
+-- ECDH and classical digital signature are safe
+  eq ecdhSafe = true .
+  eq clSignSafe = true .
+-- KEMs and post-quantum signature are unsafe
+  eq kemSafe = false .
+  eq pqSignSafe = false .
+-- revealing of long-term private key is defined as
+  eq ltkRevealed(S,B) = clSignKRevealed(S,B) .
+  eq revealedAfterN(S,B,N) = 
+    (N < timeLeak(clSignPriK(B), scrLeaked(S))) .
+}

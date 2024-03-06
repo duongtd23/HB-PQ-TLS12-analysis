@@ -1,0 +1,102 @@
+-- This requires the preloading file `no-pq-sign/properties.cafe`.
+
+-- load no-pq-sign/properties.cafe .
+
+** Showing a state in which the predicate `auth` does not hold.
+** See `appendix.pdf` for the explanation
+open PROP .
+-- a: Alice, b: Bob
+  ops a b : -> Prin .
+  op cs : -> Suite .
+  op css : -> Suites .
+  op i : -> Sid .
+  ops k k2 : -> EcSecretK .
+  ops k' k2' : -> PqSecretK .
+  op kems : -> PqKemParams .
+  ops pk pk2 : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  ops r r2 : -> Rand .
+  ops s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15 s16 s17 : -> Sys .
+  ops sign sign2 cfin sfin : -> Data .
+  op v : -> Version .
+  op dl : -> DataL .
+
+-- config
+  eq (a = intru) = false .
+  eq (b = intru) = false .
+  eq (a = b) = false .
+  eq (r = r2) = false .
+  eq (k = k2) = false .
+  eq (k' = k2') = false .
+  eq contains(css,cs) = true .
+
+-- macros
+  eq pk = ecPublic(k) .
+  eq pk' = keygen(k') .
+  eq pk2 = ecPublic(k2) .
+  eq en = encapsC(keygen(k'),k2') .
+  eq cspk = clSignPubK(b) .
+  eq sign = clsign(clSignPriK(ca), h(b || clSignPubK(b))) .
+  eq sign2 = clsign(clSignPriK(b), h(r || r2 || pk || pk')) .
+  eq dl = i || v || r || css || kems || r2 || cs .
+  eq cfin = enc(hsckey(ms((k | k2) || (k' & k2'), 
+      r || r2 || pk2 || en), r || r2),
+    h(a || b || dl || cspk || sign || pk || pk' || sign2 || pk2 || en)) .
+  eq sfin = enc(hsskey(ms((k | k2) || (k' & k2'), 
+      r || r2 || pk2 || en), r || r2),
+    h(a || b || dl || cspk || sign || pk || pk' || sign2 || pk2 || en)) .
+
+** transitions leading to the state disproving `auth`
+-- a sends ClientHello to b, and then
+-- b sends ServerHello and Certificate to a
+  eq s0 = init .
+  eq s1 = chello(s0,a,b,v,r,css,kems) .
+  eq s2 = shello(s1,r2,cs,i,a,a,b,v,r,css,kems) .
+  eq s3 = scert(s2,a,b,v,r2,cs,i) .
+
+-- intruder breaks classical signature algorithm to get b's private signing key
+  eq s4 = brkClSign(s3,b) .
+
+-- intruder impersonates b in communication with a
+-- intruder sends ServerHello and Certificate again
+  eq s5 = fkHello(s4,b,a, v || r2 || cs || i) .
+  eq s6 = fkScert(s5,b,a,cspk,sign) .
+-- intruder generates two ephemeral secret keys, and
+-- signs them by b's private signing key
+  eq s7 = gEcSecretK(s6,k) .
+  eq s8 = gPqSecretK(s7,k') .
+  eq s9 = g1(s8, r || r2 || pk || pk') .
+  eq s10 = gSign(s9, clSignPriK(b), h(r || r2 || pk || pk')) .
+-- intruder acts as b to send ServerKeyExchange message to a
+  eq s11 = fkSkeyex(s10,b,a,pk,pk',sign2) .
+
+-- a sends ClientKeyExchange and Finished messages to b
+  eq s12 = ckeyex(s11,k2,k2',a,b,v,r,css,kems,
+    intru,r2,cs,i,cspk,sign,pk,pk',sign2,0) .
+  eq s13 = cfinish(s12,a,b,v,r,css,kems,intru,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0,k2,k2',1) .
+-- intruder computes the two shared secrets, the master secret, and the handshake keys
+  eq s14 = gEcShare(s13,k,pk2) .
+  eq s15 = gDecaps(s14,k',en) .
+  eq s16 = g23(s15, (k | k2) || (k' & k2'), r || r2 || pk2 || en) .
+  eq s17 = g22(s16, 
+    ms((k | k2) || (k' & k2'), r || r2 || pk2 || en), r || r2) .
+  
+  red nw(s17) .
+-- the following is the only skexM in the network:
+-- skexM(intru,b,a,ecPublic(k) || keygen(k') ||
+--     clsign(clSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 0)
+  red auth(s17,a,b,a,pk,pk',k2,k2',r,r2,dl,cspk,sign,sign2,0) . -- false
+close
+
+-- end of file, code beyond here is nonsense
+eof
+
+-- commands to load files
+load common.cafe .
+load no-pq-sign/protocol.cafe .
+load no-pq-sign/pqtls-nopqsign.cafe .
+load no-pq-sign/properties.cafe .
+load no-pq-sign/auth-counterexample.cafe .
