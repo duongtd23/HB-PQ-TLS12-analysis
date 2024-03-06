@@ -1,0 +1,170 @@
+-- load no-client-auth/properties-full-hs.cafe
+
+** define properties in abbreviated handshake
+mod* PROP-ABBRHS {
+  pr(PROP-FULLHS)
+
+  var S : Sys
+  vars A B B2 ?B2 : Prin
+  vars R R2 R3 R4 : Rand
+  var CS : Suite
+  var I : Sid
+  vars PK PK2 : EcPublicK
+  vars PK' PK2' : PqPublicK
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+  var DL : DataL
+  var RO : Role
+
+** session key secrecy property **
+-- proven separately wrt PROP-ABBRHS-PQSAFE and PROP-ABBRHS-CLSAFE
+-- se-lm4 + knl-lm1 + knl-lm6, no ind
+  op ssKeySe-abbr : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand DataL -> Bool
+  eq ssKeySe-abbr(S,A,B,PK,PK',K2,K2',R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and 
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || DL))) \in nw(S) and
+    not(ltkRevealed(S,B)))
+   implies
+    not(hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'),
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4) \in knl(S) or
+        hsskey2(ms(ecShare(PK,K2) || encapsK(PK', K2'),
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4) \in knl(S)) .
+
+** (tight) authentication property **
+-- proven with respect to (wrt) PROP-ABBRHS
+-- ssKeySe-abbr + auth-lm4 + auth-lm5 + knl-lm5, no ind
+  op auth-abbr-tight : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand Sid DataL -> Bool
+  eq auth-abbr-tight(S,A,B,PK,PK',K2,K2',R,R2,R3,R4,I,DL) = 
+   (not(A = intru or B = intru) and 
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || I || DL))) \in nw(S) and
+    not(ltkRevealed(S,B)))
+   implies
+    sf2M(B,B,A,enc(
+      hsskey2(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4),
+      h(A || B || I || DL))) \in nw(S) .
+
+** lemmas to prove the two properties above **
+-- all are proven with respect to (wrt) PROP-ABBRHS
+** authentication helper lemmas **
+-- no lm
+  op auth-lm4 : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand Sid DataL -> Bool
+  eq auth-lm4(S,A,B,PK,PK',K2,K2',R,R2,R3,R4,I,DL) =
+   (not(A = intru or B = intru) and 
+    not(hsskey2(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4) \in knl(S)) and
+    enc(hsskey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || I || DL)) \in knl(S))
+   implies
+    sf2M(B,B,A,enc(
+      hsskey2(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4),
+      h(A || B || I || DL))) \in nw(S) .
+
+-- no lm
+  op auth-lm5 : Sys Prin Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand Sid DataL -> Bool
+  eq auth-lm5(S,A,B,?B2,PK,PK',K2,K2',R,R2,R3,R4,I,DL) = 
+   (not(A = intru or B = intru) and 
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || I || DL))) \in nw(S))
+   implies
+    sf2M(?B2,B,A,enc(
+      hsskey2(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4),
+      h(A || B || I || DL))) \in nw(S) .
+
+** secret uniqueness lemmas **
+-- scrused-lm1 + scrused-lm3
+  op scrused-lm9 : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Sid Suite -> Bool
+  eq scrused-lm9(S,A,B,PK,PK',K2,K2',R,R2,I,CS) = 
+   (not(A = intru or B = intru) and 
+    (ss(S,A,B,I) = session(client,CS,
+      ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+          R || R2 || ecPublic(K2) || encapsC(PK',K2')))))
+   implies
+      (K2 \in udata(S) and ecSecret(PK) \in udata(S) and
+       K2' \in udata(S) and pqSecret(PK') \in udata(S)) .
+
+-- no lm
+  op scrused-lm10 : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand DataL -> Bool
+  eq scrused-lm10(S,A,B,PK,PK',K2,K2',R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and 
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || DL))) \in nw(S))
+   implies
+    (K2 \in udata(S) and ecSecret(PK) \in udata(S) and
+     K2' \in udata(S) and pqSecret(PK') \in udata(S)) .
+}
+-- in case ECDH can be broken, and KEMs are safe
+-- all properties in this module are proven wrt PROP-ABBRHS-PQSAFE
+mod* PROP-ABBRHS-PQSAFE {
+  pr(PROP-ABBRHS)
+  pr(PROP-FULLHS-PQSAFE)
+
+  var S : Sys
+  vars A B B2 : Prin
+  vars R R2 R3 R4 : Rand
+  var CS : Suite
+  var I : Sid
+  vars PK PK2 : EcPublicK
+  vars PK' PK2' : PqPublicK
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+  var DL : DataL
+
+** secrecy helper lemmas **
+-- se-lm5 + scrused-lm10
+  op se-lm4 : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Rand Rand DataL -> Bool
+  eq se-lm4(S,A,B,PK,PK',K2,K2',R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK,K2) || encapsK(PK', K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R3 || R4), 
+      h(A || B || DL))) \in nw(S) and
+    not(ltkRevealed(S,B)))
+   implies
+    not(K2' \in knl(S) or pqSecret(PK') \in knl(S)) .
+
+-- ephSe + knl-lm7 + scrused-lm9
+  op se-lm5 : Sys Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand Sid Suite -> Bool
+  eq se-lm5(S,A,B,PK,PK',K2,K2',R,R2,I,CS) =
+   (not(A = intru or B = intru) and
+    ss(S,A,B,I) = session(client,CS,
+      ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+          R || R2 || ecPublic(K2) || encapsC(PK',K2'))) and
+    not(ltkRevealed(S,B)))
+   implies
+    not(K2' \in knl(S) or pqSecret(PK') \in knl(S)) .
+
+}

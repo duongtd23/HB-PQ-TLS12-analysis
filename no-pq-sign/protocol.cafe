@@ -7,7 +7,7 @@
 -- load common.cafe .
 
 ** This file contains the specification of 
-** abbreviated handshake and intruder capabilities
+**  abbreviated handshake and intruder capabilities
 
 -- Abbreviated handshake specification
 mod* PROTOCOL-ABBR {
@@ -72,7 +72,7 @@ mod* PROTOCOL-ABBR {
   eq scrLeaked(init) = empty .
   eq knl(init) = (clSignPriK(intru) || clSignPubK(intru)) .
 
-** signatures of transitions modeling abbreviated handshake **
+** Signatures of transitions modeling abbreviated handshake **
   op chello2 : Sys Prin Prin Version Rand Sid Suites Suite Data -> Sys {constr}
   op shello2 : Sys Rand
     Prin Prin Prin Version Rand Sid Suites Suite Data -> Sys {constr}

@@ -1,0 +1,185 @@
+-- load with-client-auth/properties-abbrhs.cafe
+-- load with-client-auth/properties-ca-fullhs.cafe
+
+** define properties in full handshake
+mod* PROP-CA-ABBRHS {
+  pr(PROP-ABBRHS)
+
+  var S : Sys
+  vars A A2 B : Prin
+  vars R R2 R3 R4 : Rand
+  var CS : Suite
+  var I : Sid
+  vars PK PK2 : EcPublicK
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+  vars EN : PqCipher
+  vars DL RS : DataL
+  vars N N2 : Nat
+
+** session key secrecy property **
+-- proven separately wrt PROP-CA-ABBRHS-PQSAFE and PROP-CA-ABBRHS-CLSAFE
+-- se2-lm6 + knl2-lm2 + knl2-lm1, no ind
+  op ssKeySe2-abbr : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Rand Rand DataL -> Bool
+  eq ssKeySe2-abbr(S,A,B,K,K',PK2,EN,R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and 
+    sf2M(B,B,A, enc(
+      hsskey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+      h(A || B || DL))) \in nw(S) and
+    not(ltkRevealed(S,A)))
+   implies
+    not(hsskey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+            R || R2 || PK2 || EN), R3 || R4) \in knl(S) or
+        hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+            R || R2 || PK2 || EN), R3 || R4) \in knl(S)) .
+
+** (tight) authentication property **
+-- proven wrt PROP-CA-ABBRHS
+-- ssKeySe2-abbr + auth2-lm4 + knl-lm5, no ind
+  op auth2-abbr-tight : Sys Prin Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Rand Rand Sid DataL -> Bool
+  eq auth2-abbr-tight(S,A,B,A2,K,K',PK2,EN,R,R2,R3,R4,I,DL) = 
+   (not(A = intru or B = intru) and 
+    sf2M(B,B,A, enc(
+      hsskey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+      h(A || B || I || DL))) \in nw(S) and
+    cf2M(A2,A,B, enc(
+      hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+      h(A || B || I || DL))) \in nw(S) and
+    not(ltkRevealed(S,A)))
+   implies
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+      h(A || B || I || DL))) \in nw(S) .
+
+** lemmas to prove the two properties **
+-- all are proven wrt PROP-CA-ABBRHS
+** authentication helper lemmas **
+-- no lm
+  op auth2-lm4 : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Rand Rand Sid DataL -> Bool
+  eq auth2-lm4(S,A,B,K,K',PK2,EN,R,R2,R3,R4,I,DL) = 
+   (not(A = intru or B = intru) and 
+    not(hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4)
+        \in knl(S)) and
+    enc(hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+        h(A || B || I || DL)) \in knl(S))
+   implies
+    cf2M(A,A,B, enc(
+      hsckey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4), 
+      h(A || B || I || DL))) \in nw(S) .
+
+** secret uniqueness lemmas **
+-- scrused2-lm3
+  op scrused2-lm2 : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Rand Rand DataL -> Bool
+  eq scrused2-lm2(S,A,B,K,K',PK2,EN,R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and 
+    sf2M(B,B,A, enc(
+      hsskey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4),
+      h(A || B || DL))) \in nw(S))
+   implies
+    (K' \in udata(S) and pqSecret(EN)  \in udata(S) and
+     K  \in udata(S) and ecSecret(PK2) \in udata(S)) .
+
+-- scrused-lm3 + scrused2-lm4
+  op scrused2-lm3 : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Sid Suite -> Bool
+  eq scrused2-lm3(S,A,B,K,K',PK2,EN,R,R2,I,CS) = 
+   (not(A = intru or B = intru) and
+    ss(S,B,A,I) = session(server,CS,
+      ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN)))
+   implies
+    (K' \in udata(S) and pqSecret(EN)  \in udata(S) and
+     K  \in udata(S) and ecSecret(PK2) \in udata(S)) .
+
+-- scrused-lm1, no ind
+  op scrused2-lm4 : Sys Prin Prin EcSecretK PqSecretK Rand Rand Nat -> Bool
+  eq scrused2-lm4(S,A,B,K,K',R,R2,N) =
+    skexM(B,B,A, ecPublic(K) || keygen(K') || 
+      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
+      N) \in nw(S)
+    implies (K \in udata(S) and K' \in udata(S)) .
+}
+-- in case ECDH can be broken, and KEMs are safe
+mod* PROP-CA-ABBRHS-PQSAFE {
+  pr(PROP-CA-ABBRHS)
+  pr(PROP-CA-FULLHS-PQSAFE)
+
+  var S : Sys
+  vars A A2 B : Prin
+  vars R R2 R3 R4 : Rand
+  var CS : Suite
+  var I : Sid
+  vars PK PK2 : EcPublicK
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+  vars EN : PqCipher
+  vars DL RS : DataL
+  vars V : Version
+  vars KEMs : PqKemParams
+  var CSs : Suites
+  vars SIGN SIGN2 SIGN3 SIGN4 : Data
+  vars PSPK : PqSignPubK
+  vars CSPK : ClSignPubK
+  vars N N2 : Nat
+
+** secrecy helper lemmas **
+-- scrused2-lm2 + se2-lm7
+  op se2-lm6 : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Rand Rand DataL -> Bool
+  eq se2-lm6(S,A,B,K,K',PK2,EN,R,R2,R3,R4,DL) = 
+   (not(A = intru or B = intru) and 
+    sf2M(B,B,A, enc(
+      hsskey2(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), R3 || R4),
+      h(A || B || DL))) \in nw(S) and
+    not(ltkRevealed(S,A)))
+   implies
+    not(K' \in knl(S) or pqSecret(EN) \in knl(S)) .
+
+-- scrused2-lm3 + ephSe2 + knl2-lm7
+  op se2-lm7 : Sys Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand Sid Suite -> Bool
+  eq se2-lm7(S,A,B,K,K',PK2,EN,R,R2,I,CS) = 
+   (not(A = intru or B = intru) and
+    ss(S,B,A,I) = session(server,CS,
+      ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN)) and
+    not(ltkRevealed(S,A)))
+   implies
+    not(K' \in knl(S) or pqSecret(EN) \in knl(S)) .
+
+** intruder knowledge lemmas **
+-- knl2-lm5, no ind
+  op knl2-lm7 : Sys Prin Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand ClSignPubK PqSignPubK Data Data Sid Version Suites Suite PqKemParams Nat -> Bool
+  eq knl2-lm7(S,A,B,A2,K,K',PK2,EN,R,R2,CSPK,PSPK,SIGN3,SIGN4,I,V,CSs,CS,KEMs,N2) = 
+   (not(A = intru or B = intru) and
+    certM(A2,A,B, A || CSPK || clsign(clSignPriK(ca), h(A || CSPK)) ||
+      PSPK || pqsign(pqSignPriK(ca), h(A || PSPK))) \in nw(S) and
+    ckexM(A2,A,B, PK2 || EN, N2) \in nw(S) and
+    certVerM(A2,A,B,SIGN3 || SIGN4) \in nw(S) and
+    pqverify(PSPK, h(A || B || I || V || R || CSs || KEMs || R2 || CS ||
+        clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') ||
+        clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        CSPK || clsign(clSignPriK(ca), h(A || CSPK)) ||
+        PSPK || pqsign(pqSignPriK(ca), h(A || PSPK)) || 
+        PK2 || EN), 
+      SIGN4) and
+    (not(ltkRevealed(S,A)) or revealedAfterN(S,A,N2)))
+   implies
+    not(pqSecret(EN) \in knl(S)) .
+}

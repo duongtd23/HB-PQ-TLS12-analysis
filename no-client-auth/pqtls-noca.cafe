@@ -1,9 +1,9 @@
+-- This file requires the preloading file `protocol.cafe`.
 
--- This file requires the preloading file `no-pq-sign/protocol.cafe`.
+-- load protocol.cafe
 
--- load no-pq-sign/protocol.cafe .
-
-** Full handshake specification
+** This file contains the full handshake specification of
+**  the extended protocol in case client authentication is not desired
 mod* PQTLS {
   ex(PROTOCOL-ABBR)
 
@@ -17,12 +17,23 @@ mod* PQTLS {
   vars PK' PK2' : PqPublicK
   vars EN : PqCipher
   vars CSPK : ClSignPubK
+  vars PSPK : PqSignPubK
   vars R R2 : Rand
   vars I I2 I9 : Sid
   vars KEMs : PqKemParams
   vars V V2 : Version
   vars N N2 : Nat
-  vars D SIGN SIGN2 : Data
+  vars D SIGN SIGN2 SIGN3 SIGN4 : Data
+
+** Macros
+-- Certificate of principal B based on classical digital signature
+  op clCert : Prin -> DataL
+  eq clCert(B) =
+    clSignPubK(B) || clsign(clSignPriK(ca), h(B || clSignPubK(B))) .
+-- Certificate of principal B based on PQ digital signature
+  op pqCert : Prin -> DataL
+  eq pqCert(B) =
+    pqSignPubK(B) || pqsign(pqSignPriK(ca), h(B || pqSignPubK(B))) .
 
 ** Signatures of transitions modeling full handshake **
   op chello : Sys Prin Prin Version Rand Suites 
@@ -39,15 +50,15 @@ mod* PQTLS {
   op ckeyex : Sys EcSecretK PqSecretK
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat -> Sys {constr}
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat -> Sys {constr}
   op cChangeCS : Sys
     Prin Prin PqPublicK EcSecretK PqSecretK Nat -> Sys {constr}
   op cfinish : Sys 
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat 
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat 
     EcSecretK PqSecretK Nat -> Sys {constr}
   op sChangeCS : Sys
     Prin Prin Prin Version Rand Suites PqKemParams
@@ -63,8 +74,8 @@ mod* PQTLS {
   op ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat 
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat 
     EcSecretK PqSecretK Nat Data -> Sys {constr}
 
 -- Client A sends a ClientHello message (of full handshake) to B
@@ -110,16 +121,14 @@ mod* PQTLS {
   eq c-scert(S,A,B,V,R2,CS,I) = 
     shM(B,B,A, V || R2 || CS || I) \in nw(S) .
   ceq nw(scert(S,A,B,V,R2,CS,I)) = 
-    (certM(B,B,A, B || clSignPubK(B) || clsign(clSignPriK(ca), 
-      h(B || clSignPubK(B)))) , nw(S)) 
+    (certM(B,B,A, B || clCert(B) || pqCert(B)) , nw(S))
     if c-scert(S,A,B,V,R2,CS,I) .
   eq udata(scert(S,A,B,V,R2,CS,I)) = udata(S) . 
   eq ss(scert(S,A,B,V,R2,CS,I),A9,B9,I9) = 
     ss(S,A9,B9,I9) .
   eq time(scert(S,A,B,V,R2,CS,I)) = time(S) . 
   ceq knl(scert(S,A,B,V,R2,CS,I)) = 
-    (B || clSignPubK(B) || clsign(clSignPriK(ca), 
-      h(B || clSignPubK(B))) || knl(S)) 
+    (B || clCert(B) || pqCert(B) || knl(S)) 
     if c-scert(S,A,B,V,R2,CS,I) .
   eq scrLeaked(scert(S,A,B,V,R2,CS,I)) = scrLeaked(S) . 
   ceq scert(S,A,B,V,R2,CS,I) = S 
@@ -138,12 +147,11 @@ mod* PQTLS {
   eq c-skeyex'(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I) = 
     (chM(A2,A,B, V || R || CSs || KEMs) \in nw(S) and
      shM(B,B,A, V || R2 || CS || I) \in nw(S) and
-     certM(B,B,A, B || clSignPubK(B) || clsign(clSignPriK(ca), 
-        h(B || clSignPubK(B))))
-      \in nw(S) ) .
+     certM(B,B,A, B || clCert(B) || pqCert(B)) \in nw(S)) .
   ceq nw(skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I)) = 
     (skexM(B,B,A, ecPublic(K) || keygen(K') ||
-      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
+      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
       time(S)) , nw(S)) 
     if c-skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) .
   ceq udata(skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I)) 
@@ -155,7 +163,9 @@ mod* PQTLS {
     if c-skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) .
   ceq knl(skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I)) = 
     (ecPublic(K) || keygen(K') ||
-      clsign(clSignPriK(B),h(R || R2 || ecPublic(K) || keygen(K'))) || knl(S)) 
+      clsign(clSignPriK(B),h(R || R2 || ecPublic(K) || keygen(K'))) || 
+      pqsign(pqSignPriK(B),h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      knl(S)) 
     if c-skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) .
   eq scrLeaked(skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I)) = scrLeaked(S) . 
   ceq skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) = S 
@@ -165,77 +175,76 @@ mod* PQTLS {
   op c-shelloDone : Sys Prin Prin Rand Rand
     EcSecretK PqSecretK Nat -> Bool
   eq c-shelloDone(S,A,B,R,R2,K,K',N) = 
-    (skexM(B,B,A, ecPublic(K) || keygen(K') || 
-      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
-      N) \in nw(S)) .
+    skexM(B,B,A, ecPublic(K) || keygen(K') || 
+      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
+     N) \in nw(S) .
   ceq nw(shelloDone(S,A,B,R,R2,K,K',N)) 
-    = (shDnM(B,B,A) , nw(S)) 
-  if c-shelloDone(S,A,B,R,R2,K,K',N) .
+      = (shDnM(B,B,A) , nw(S)) 
+    if c-shelloDone(S,A,B,R,R2,K,K',N) .
   eq udata(shelloDone(S,A,B,R,R2,K,K',N)) = udata(S) .
-  eq ss(shelloDone(S,A,B,R,R2,K,K',N),A9,B9,I9) 
-    = ss(S,A9,B9,I9) .
-  eq time(shelloDone(S,A,B,R,R2,K,K',N))
-    = time(S) .
-  eq knl(shelloDone(S,A,B,R,R2,K,K',N))
-    = knl(S) .
-  eq scrLeaked(shelloDone(S,A,B,R,R2,K,K',N))
-    = scrLeaked(S) .
+  eq ss(shelloDone(S,A,B,R,R2,K,K',N),A9,B9,I9) = ss(S,A9,B9,I9) .
+  eq time(shelloDone(S,A,B,R,R2,K,K',N)) = time(S) .
+  eq knl(shelloDone(S,A,B,R,R2,K,K',N)) = knl(S) .
+  eq scrLeaked(shelloDone(S,A,B,R,R2,K,K',N)) = scrLeaked(S) .
   ceq shelloDone(S,A,B,R,R2,K,K',N) = S
-  if not c-shelloDone(S,A,B,R,R2,K,K',N) .
+    if not c-shelloDone(S,A,B,R,R2,K,K',N) .
 
 -- Client A sends a client key exchange message to server B
   op c-ckeyex : Sys EcSecretK PqSecretK
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat -> Bool
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat -> Bool
   op c-ckeyex' : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat -> Bool
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat -> Bool
   eq c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) 
     = (c-ckeyex'(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-        CSPK,SIGN,PK,PK',SIGN2,N) 
+        CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) 
        and not (K2 \in udata(S) or K2' \in udata(S))) .
   eq c-ckeyex'(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) 
     = (chM(A,A,B, V || R || CSs || KEMs) \in nw(S) and
      shM(B2,B,A, V || R2 || CS || I) \in nw(S) and
-     certM(B2,B,A, B || CSPK || SIGN) \in nw(S) and
+     certM(B2,B,A, B || CSPK || SIGN || PSPK || SIGN2) \in nw(S) and
       clverify(clSignPubK(ca), h(B || CSPK), SIGN) and
-     skexM(B2,B,A, PK || PK' || SIGN2, N) \in nw(S) and
-      clverify(CSPK, h(R || R2 || PK || PK'), SIGN2)) .
+      pqverify(pqSignPubK(ca), h(B || PSPK), SIGN2) and
+     skexM(B2,B,A, PK || PK' || SIGN3 || SIGN4, N) \in nw(S) and
+      clverify(CSPK, h(R || R2 || PK || PK'), SIGN3) and 
+      pqverify(PSPK, h(R || R2 || PK || PK'), SIGN4)) .
 
   ceq nw(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N))
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N))
     = (ckexM(A,A,B, ecPublic(K2) || encapsC(PK',K2'), time(S)) , nw(S)) 
     if c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
   ceq udata(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N)) 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N)) 
     = (K2 ; K2' ; udata(S))
     if c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
   eq ss(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N),A9,B9,I9) 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N),A9,B9,I9) 
     = ss(S,A9,B9,I9) .
   ceq time(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N)) = s(time(S))
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N)) = s(time(S))
     if c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
   ceq knl(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N))
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N))
     = (ecPublic(K2) || encapsC(PK',K2') || knl(S)) 
     if c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
   eq scrLeaked(ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N)) = scrLeaked(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N)) = scrLeaked(S) . 
   ceq ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) = S 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) = S 
     if not c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
 
 -- Client A sends a change cipher spec
   op c-cChangeCS : Sys
@@ -257,50 +266,51 @@ mod* PQTLS {
   op c-cfinish : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat 
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat 
     EcSecretK PqSecretK Nat -> Bool
   eq c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)
-    = (c-ckeyex'(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-        CSPK,SIGN,PK,PK',SIGN2,N) and
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) = 
+   (c-ckeyex'(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) and
        ckexM(A,A,B, ecPublic(K2) || encapsC(PK',K2'), N2) \in nw(S)) .
-      --  and N2 > N .
   ceq nw(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2)) = 
     (cfM(A,A,B, enc(
         hsckey(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
               R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
             R || R2), 
         h(A || B || I || V || R || CSs || KEMs || R2 || CS ||
-          CSPK || SIGN || PK || PK' || SIGN2 ||
+          CSPK || SIGN || PSPK || SIGN2 || 
+          PK || PK' || SIGN3 || SIGN4 ||
           ecPublic(K2) || encapsC(PK',K2'))
       )) , nw(S)) 
     if c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) .
   eq udata(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)) = udata(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2)) = udata(S) . 
   eq ss(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2),A9,B9,I9) = ss(S,A9,B9,I9) .
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2),A9,B9,I9) = ss(S,A9,B9,I9) .
   eq time(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)) = time(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2)) = time(S) . 
   ceq knl(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2)) = 
     (enc(hsckey(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
               R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
             R || R2), 
         h(A || B || I || V || R || CSs || KEMs || R2 || CS ||
-          CSPK || SIGN || PK || PK' || SIGN2 ||
+          CSPK || SIGN || PSPK || SIGN2 || 
+          PK || PK' || SIGN3 || SIGN4 ||
           ecPublic(K2) || encapsC(PK',K2'))
       ) || knl(S))
     if c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) .
   eq scrLeaked(cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2)) = scrLeaked(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2)) = scrLeaked(S) . 
   ceq cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) = S 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) = S 
     if not c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) .
 
 -- Server sends a change cipher spec
   op c-sChangeCS : Sys
@@ -310,18 +320,21 @@ mod* PQTLS {
     EcPublicK PqCipher Nat Data -> Bool
   eq c-sChangeCS(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) = 
-    (c-skeyex'(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I) and
-     skexM(B,B,A, ecPublic(K) || keygen(K') ||
-      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), N) \in nw(S) and
+   (c-skeyex'(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I) and
+    skexM(B,B,A, ecPublic(K) || keygen(K') ||
+      clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
+      N) \in nw(S) and
      ckexM(A2,A,B, PK2 || EN, N2) \in nw(S) and
      cfM(A2,A,B,D) \in nw(S) and 
      dec(hsckey(ms(ecShare(PK2,K) || decaps(EN,K'), 
             R || R2 || PK2 || EN), 
           R || R2),
         D) =
-      h(A || B || I || V || R || CSs || KEMs || R2 || CS || clSignPubK(B) || 
-        clsign(clSignPriK(ca), h(B || clSignPubK(B))) || ecPublic(K) || keygen(K') ||
+      h(A || B || I || V || R || CSs || KEMs || R2 || CS || 
+        clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') ||
         clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
         PK2 || EN)) .
   ceq nw(sChangeCS(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D)) 
@@ -354,15 +367,16 @@ mod* PQTLS {
     c-sChangeCS(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) .
   ceq nw(sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
-      PK2,EN,N2,D)) 
-    = (sfM(B,B,A, enc(
-        hsskey(ms(ecShare(PK2,K) || decaps(EN,K'),
-            R || R2 || PK2 || EN), 
-          R || R2),
-        h(A || B || I || V || R || CSs || KEMs || R2 || CS || clSignPubK(B) ||
-          clsign(clSignPriK(ca), h(B || clSignPubK(B))) || ecPublic(K) || keygen(K') ||
-          clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
-          PK2 || EN))
+      PK2,EN,N2,D)) = 
+   (sfM(B,B,A, enc(
+      hsskey(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), 
+        R || R2),
+      h(A || B || I || V || R || CSs || KEMs || R2 || CS || 
+        clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') ||
+        clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        PK2 || EN))
       )) , nw(S)
     if c-sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) .
@@ -380,15 +394,16 @@ mod* PQTLS {
   eq time(sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
     PK2,EN,N2,D)) = time(S) . 
   ceq knl(sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
-      PK2,EN,N2,D)) 
-    = (enc(hsskey(ms(ecShare(PK2,K) || decaps(EN,K'),
-            R || R2 || PK2 || EN), 
-          R || R2),
-        h(A || B || I || V || R || CSs || KEMs || R2 || CS || clSignPubK(B) ||
-          clsign(clSignPriK(ca), h(B || clSignPubK(B))) || ecPublic(K) || keygen(K') ||
-          clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
-          PK2 || EN))
-      ) || knl(S)
+      PK2,EN,N2,D)) = 
+   (enc(hsskey(ms(ecShare(PK2,K) || decaps(EN,K'),
+          R || R2 || PK2 || EN), 
+        R || R2),
+      h(A || B || I || V || R || CSs || KEMs || R2 || CS || 
+        clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') ||
+        clsign(clSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        PK2 || EN))
+    ) || knl(S)
     if c-sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       PK2,EN,N2,D) .
   eq scrLeaked(sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
@@ -402,19 +417,20 @@ mod* PQTLS {
   op c-ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
-    ClSignPubK Data
-    EcPublicK PqPublicK Data Nat 
+    ClSignPubK Data PqSignPubK Data
+    EcPublicK PqPublicK Data Data Nat 
     EcSecretK PqSecretK Nat Data -> Bool
   eq c-ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D) = 
    (c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2) and
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) and
     cfM(A,A,B, enc(
       hsckey(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
           R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
         R || R2), 
       h(A || B || I || V || R || CSs || KEMs || R2 || CS ||
-        CSPK || SIGN || PK || PK' || SIGN2 ||
+        CSPK || SIGN || PSPK || SIGN2 || 
+        PK || PK' || SIGN3 || SIGN4 ||
         ecPublic(K2) || encapsC(PK',K2'))
     )) \in nw(S) and
     sfM(B2,B,A,D) \in nw(S) and 
@@ -423,31 +439,32 @@ mod* PQTLS {
           R || R2),
         D) =
       h(A || B || I || V || R || CSs || KEMs || R2 || CS ||
-        CSPK || SIGN || PK || PK' || SIGN2 ||
+        CSPK || SIGN || PSPK || SIGN2 || 
+        PK || PK' || SIGN3 || SIGN4 ||
         ecPublic(K2) || encapsC(PK',K2'))) .
   eq nw(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D)) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D)) = 
     nw(S) .
   eq udata(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D)) = udata(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D)) = udata(S) . 
   ceq ss(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D),A9,B9,I9) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D),A9,B9,I9) = 
     (if A9 = A and B9 = B and I9 = I 
      then session(client,CS,ms(ecShare(PK,K2) || encapsK(PK',K2'), 
             R || R2 || ecPublic(K2) || encapsC(PK',K2')))
      else ss(S,A9,B9,I9)
      fi)
     if c-ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D) .
   eq time(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D)) = time(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D)) = time(S) . 
   eq knl(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D)) = 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D)) = 
     knl(S) .
   eq scrLeaked(ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-    CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D)) = scrLeaked(S) . 
+    CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D)) = scrLeaked(S) . 
   ceq ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D) = S 
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D) = S 
     if not c-ccomp(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
-      CSPK,SIGN,PK,PK',SIGN2,N,K2,K2',N2,D) .
+      CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2,D) .
 }
