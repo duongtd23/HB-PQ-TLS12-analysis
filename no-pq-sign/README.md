@@ -6,9 +6,27 @@ In this folder, you can find:
 3. `properties.cafe`: The server authentication property definition in CafeOBJ.
 4. `auth-counterexample.cafe`: A counterexample of the server authentication property.
 
-To confirm the counterexample, run the following commands:
+To confirm the counterexample, first configure your paths to Maude and IPSG folder in script `execute.sh` properly, and then run it:
 
 ```bash
-$ maude -allow-files path-to-CafeInMaude/src/cafeInMaude.maude
-IPSG> load no-pq-sign/auth-counterexample.cafe .
+$ ./execute.sh
+```
+
+The script is actually equivalent to the following command sequence:
+```bash
+$ maude -allow-files path-to-IPSG-folder/cafeinmaude3/cafeInMaude.maude
+CafeInMaude> load common.cafe .
+CafeInMaude> load no-pq-sign/protocol.cafe .
+CafeInMaude> load no-pq-sign/pqtls-nopqsign.cafe .
+CafeInMaude> load no-pq-sign/properties.cafe .
+CafeInMaude> load no-pq-sign/auth-counterexample.cafe .
+```
+Note that, we use actually CafeInMaude, which is available inside IPSG (IPSG is implemented on top of CafeInMaude). 
+For better performance, we recommend using CafeInMaude.
+
+If there is no error, the result below will be outputted, which says that `auth` is false in state `s17`:
+```bash
+reduce auth(s17, a, b, a, pk, pk', k2, k2', r, r2, dl, cspk, sign, sign2, 0) .
+Result: false : Bool
+CafeInMaude>
 ```

@@ -21,4 +21,4 @@ printf 'load no-pq-sign/pqtls-nopqsign.cafe .\n';
 printf 'load no-pq-sign/properties.cafe .\n'; 
 printf 'load no-pq-sign/auth-counterexample.cafe .\n'; 
 cat
-) | $MAUDE -allow-files $IPSG_PATH/ipsg_without_run.maude
+) | $MAUDE -allow-files $IPSG_PATH/cafeinmaude3/cafeInMaude_without_run.maude
