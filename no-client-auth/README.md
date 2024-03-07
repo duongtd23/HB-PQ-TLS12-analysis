@@ -1,4 +1,4 @@
-## Client authentication is not desired
+## Extended protocol without Client authentication
 We consider the extended protocol (with hybrid signatures) in case client authentication is **not** desired.
 
 In this folder, you can find:

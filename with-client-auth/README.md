@@ -1,4 +1,4 @@
-## Client authentication is desired
+## Extended protocol with Client authentication
 We consider the extended protocol (with hybrid signatures) in case when client authentication **is** desired.
 
 Be sure to check `no-client-auth/README.md` first.
