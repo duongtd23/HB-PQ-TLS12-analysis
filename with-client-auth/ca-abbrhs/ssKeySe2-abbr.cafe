@@ -1,0 +1,31 @@
+open PROP-CA-ABBRHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq decaps(en,k') \in knl(s) = true .
+  red (knl2-lm1(s,k',en)
+      and se2-lm6(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl))
+    implies ssKeySe2-abbr(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl) .
+close
+
+open PROP-CA-ABBRHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq decaps(en,k') \in knl(s) = false .
+  red (knl2-lm2(s,k,k',ecSecret(pk2),en,r,r2,r3 || r4))
+    implies ssKeySe2-abbr(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl) .
+close
+eof
+
+load with-client-auth/ca-abbrhs/ssKeySe2-abbr.cafe .

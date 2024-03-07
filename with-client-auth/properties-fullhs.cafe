@@ -1,7 +1,10 @@
+-- This file requires the preloading file `with-client-auth/pqtls-ca.cafe`.
+
 -- load with-client-auth/pqtls-ca.cafe
 
-** define properties from client viewpoint in full handshake             **
-** those properties are copied from no-client-auth/properties-full-hs.cafe **
+** Define security properties from client viewpoint in full handshake
+**  and lemmas to prove them.
+** Those properties are copied from `no-client-auth/properties-full-hs.cafe`.
 mod* PROP-FULLHS {
   pr(PQTLS-CA + INTRUDER-CAPABILITIES)
 
@@ -106,8 +109,8 @@ mod* PROP-FULLHS {
      not(ecdhSafe and K2  \in knl(S))) .
 
 -- ltkSe, se-lm1, knl-lm{1-3,5}, scrused{1-8}, inv3, auth-tight, auth-tight2, auth-lm{2,3}
--- are proven with respect to (wrt) PROP-FULLHS,
--- the other ones are proven separately wrt PROP-FULLHS-PQSAFE and PROP-FULLHS-CLSAFE
+--  are proven with respect to (wrt) PROP-FULLHS.
+-- The other ones are proven separately wrt PROP-FULLHS-PQSAFE and PROP-FULLHS-CLSAFE
 
 ** lemmas to prove the properties above **
 ** secrecy helper lemmas **
@@ -359,8 +362,8 @@ mod* PROP-FULLHS {
         PK || PK' || SIGN3 || SIGN4 || clCert(A) || pqCert(A) ||
         ecPublic(K2) || encapsC(PK',K2')))) \in nw(S) .
 }
--- ECDH can be broken, and KEMs are safe
--- all properties in this module are proven wrt PROP-FULLHS-PQSAFE
+-- In case ECDH can be broken, while KEMs are safe.
+-- All properties in this module are proven wrt PROP-FULLHS-PQSAFE
 mod* PROP-FULLHS-PQSAFE {
   pr(PROP-FULLHS)
   pr(ECDH-UNSAFE-CONFIG)

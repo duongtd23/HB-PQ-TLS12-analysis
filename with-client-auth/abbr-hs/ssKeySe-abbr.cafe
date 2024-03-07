@@ -1,0 +1,32 @@
+open PROP-ABBRHS-PQSAFE .
+  ops a b b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq (pqSecret(pk') & k2') \in knl(s) = true .
+  red (knl-lm6(s,pqSecret(pk'),k2') 
+      and se-lm4(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl))
+    implies ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) .
+close
+
+open PROP-ABBRHS-PQSAFE .
+  ops a b b2 : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  eq (pqSecret(pk') & k2') \in knl(s) = false .
+  red (knl-lm1(s,ecSecret(pk),pqSecret(pk'),k2,k2',r,r2,r3 || r4) 
+      and se-lm4(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl))
+    implies ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,dl) .
+close
+
+eof
+load with-client-auth/abbr-hs/ssKeySe-abbr.cafe .

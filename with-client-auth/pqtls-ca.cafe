@@ -1,6 +1,9 @@
+-- This file requires the preloading file `protocol.cafe`.
+
 -- load protocol.cafe
 
-** specification of the PQ TLS protocol in case client authentication is desired **
+** This file contains the full handshake specification of
+**  the extended protocol in case client authentication IS desired
 mod* PQTLS-CA {
   ex(PROTOCOL-ABBR)
 
@@ -22,8 +25,8 @@ mod* PQTLS-CA {
   vars N N2 : Nat
   vars D SIGN SIGN2 SIGN3 SIGN4 : Data
 
-** macros **
--- hash of messages from client side
+** Macros
+-- Handshake hash (hash of all messages exchanged) from a client viewpoint
   op hashMsC : Prin Prin Sid Version Rand Suites PqKemParams Rand Suite
     ClSignPubK Data PqSignPubK Data 
     EcPublicK PqPublicK Data Data EcSecretK PqSecretK -> Data 
@@ -34,7 +37,7 @@ mod* PQTLS-CA {
       PK || PK' || SIGN3 || SIGN4 ||
       clCert(A) || pqCert(A) ||
       ecPublic(K2) || encapsC(PK',K2')) .
--- hash of messages from server side
+-- Handshake hash (hash of all messages exchanged) from a server viewpoint
   op hashMsS : Prin Prin Sid Version Rand Suites PqKemParams Rand Suite
     EcSecretK PqSecretK ClSignPubK Data PqSignPubK Data 
     EcPublicK PqCipher -> Data 
@@ -48,16 +51,16 @@ mod* PQTLS-CA {
       CSPK || SIGN || PSPK || SIGN2 || 
       PK2 || EN) .
       
--- certificate of principal A based on classical digital signature
+-- Certificate of principal A based on classical digital signature
   op clCert : Prin -> DataL
   eq clCert(A) =
     clSignPubK(A) || clsign(clSignPriK(ca), h(A || clSignPubK(A))) .
--- certificate of principal A based on post-quantum digital signature
+-- Certificate of principal A based on PQ digital signature
   op pqCert : Prin -> DataL
   eq pqCert(A) =
     pqSignPubK(A) || pqsign(pqSignPriK(ca), h(A || pqSignPubK(A))) .
 
--- transitions
+** Signatures of transitions modeling full handshake **
   op chello : Sys Prin Prin Version Rand Suites 
     PqKemParams -> Sys {constr}
   op shello : Sys Rand Suite Sid
@@ -107,7 +110,7 @@ mod* PQTLS-CA {
     EcSecretK PqSecretK Nat
     ClSignPubK Data PqSignPubK Data
     EcPublicK PqCipher Nat Data Data Data -> Sys {constr}
--- complete for client side
+-- Complete for client side
   op ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid
@@ -115,7 +118,7 @@ mod* PQTLS-CA {
     EcPublicK PqPublicK Data Data Nat 
     EcSecretK PqSecretK Nat Data -> Sys {constr}
 
--- client hello 
+-- Client A sends a ClientHello message (of full handshake) to B
   op c-chello : Sys Prin Rand -> Bool
   eq c-chello(S,A,R) = not(R \in udata(S)) .
   ceq nw(chello(S,A,B,V,R,CSs,KEMs)) = 
@@ -129,7 +132,7 @@ mod* PQTLS-CA {
   eq scrLeaked(chello(S,A,B,V,R,CSs,KEMs)) = scrLeaked(S) .
   ceq chello(S,A,B,V,R,CSs,KEMs) = S if not c-chello(S,A,R) .
 
--- server hello
+-- Server B sends a ServerHello message to A
   op c-shello : Sys Rand Suite Sid
     Prin Prin Prin Version Rand Suites PqKemParams -> Bool
   eq c-shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) = 
@@ -152,7 +155,7 @@ mod* PQTLS-CA {
   ceq shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) = S 
     if not c-shello(S,R2,CS,I,A2,A,B,V,R,CSs,KEMs) .
 
--- server certificate
+-- Server sends their Certificate message
   op c-scert : Sys 
     Prin Prin Version Rand Suite Sid -> Bool
   eq c-scert(S,A,B,V,R2,CS,I) = 
@@ -171,7 +174,7 @@ mod* PQTLS-CA {
   ceq scert(S,A,B,V,R2,CS,I) = S 
     if not c-scert(S,A,B,V,R2,CS,I) .
 
--- server key exchange
+-- Server sends a server key exchange message
   op c-skeyex : Sys EcSecretK PqSecretK
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid -> Bool
@@ -208,7 +211,7 @@ mod* PQTLS-CA {
   ceq skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) = S 
     if not c-skeyex(S,K,K',A2,A,B,V,R,CSs,KEMs,R2,CS,I) .
 
--- certificate request
+-- Server B sends a CertificateRequest message to client A
   op c-certReq : Sys Prin Prin Rand Rand
     EcSecretK PqSecretK Nat -> Bool
   eq c-certReq(S,A,B,R,R2,K,K',N) = 
@@ -228,7 +231,7 @@ mod* PQTLS-CA {
   ceq certReq(S,A,B,R,R2,K,K',N) = S
     if not c-certReq(S,A,B,R,R2,K,K',N) .
 
--- server hello done
+-- Server sends a server hello done message
   op c-shelloDone : Sys Prin Prin -> Bool
   eq c-shelloDone(S,A,B) = certReqM(B,B,A) \in nw(S) .
   ceq nw(shelloDone(S,A,B)) = (shDnM(B,B,A) , nw(S)) 
@@ -241,7 +244,7 @@ mod* PQTLS-CA {
   ceq shelloDone(S,A,B) = S
     if not c-shelloDone(S,A,B) .
 
--- client certificate
+-- Client sends their Certificate
   op c-ccert : Sys 
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -283,7 +286,7 @@ mod* PQTLS-CA {
     if not c-ccert(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
 
--- client key exchange
+-- Client A sends a Client Key Exchange message to server B
   op c-ckeyex : Sys EcSecretK PqSecretK
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -324,7 +327,7 @@ mod* PQTLS-CA {
     if not c-ckeyex(S,K2,K2',A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N) .
 
--- certificate verify
+-- Client A sends a Certificate Verify message to server B
   op c-certVer : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -372,7 +375,7 @@ mod* PQTLS-CA {
     if not c-certVer(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) .
 
--- client change cipher spec
+-- Client A sends a change cipher spec
   op c-cChangeCS : Sys
     Prin Prin PqPublicK EcSecretK PqSecretK Nat -> Bool
   eq c-cChangeCS(S,A,B,PK',K2,K2',N2)
@@ -388,7 +391,7 @@ mod* PQTLS-CA {
   ceq cChangeCS(S,A,B,PK',K2,K2',N2) = S 
     if not c-cChangeCS(S,A,B,PK',K2,K2',N2) .
 
--- client finish
+-- Client A sends their Finished message
   op c-cfinish : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 
@@ -440,7 +443,7 @@ mod* PQTLS-CA {
     if not c-cfinish(S,A,B,V,R,CSs,KEMs,B2,R2,CS,I,
       CSPK,SIGN,PSPK,SIGN2,PK,PK',SIGN3,SIGN4,N,K2,K2',N2) .
 
--- server change cipher spec
+-- Server sends a change cipher spec
   op c-sChangeCS : Sys
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid 
@@ -491,7 +494,7 @@ mod* PQTLS-CA {
     if not c-sChangeCS(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       CSPK,SIGN,PSPK,SIGN2,PK2,EN,N2,SIGN3,SIGN4,D) .
 
--- server finish
+-- Server B sends their Finished message
   op c-sfinish : Sys
     Prin Prin Prin Version Rand Suites PqKemParams
     Rand Suite Sid 
@@ -540,7 +543,7 @@ mod* PQTLS-CA {
     if not c-sfinish(S,A2,A,B,V,R,CSs,KEMs,R2,CS,I,K,K',N,
       CSPK,SIGN,PSPK,SIGN2,PK2,EN,N2,SIGN3,SIGN4,D) .
 
--- client validates the received server finished message
+-- Client validates the received Finished message from server
   op c-ccomp : Sys
     Prin Prin Version Rand Suites PqKemParams
     Prin Rand Suite Sid 

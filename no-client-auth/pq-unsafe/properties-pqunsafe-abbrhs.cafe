@@ -1,6 +1,6 @@
 -- This file requires the preloading files 
 --  `no-client-auth/properties-abbr-hs.cafe` and
---  `no-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe` .
+--  `no-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe`.
 
 -- load no-client-auth/properties-abbr-hs.cafe
 -- load no-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe

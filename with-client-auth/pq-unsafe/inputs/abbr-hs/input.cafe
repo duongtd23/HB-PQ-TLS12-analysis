@@ -1,0 +1,34 @@
+ipsgopen PROP-ABBRHS-CLSAFE .
+  inv se-lm5$(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,
+    K2:EcSecretK,K2':PqSecretK, R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  inv scrused-lm10(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,
+    K2:EcSecretK,K2':PqSecretK, R:Rand,R2:Rand,R3:Rand,R4:Rand,DL:DataL) .
+  generate se-lm4$(S:Sys, A:Prin,B:Prin,PK:EcPublicK,PK':PqPublicK, 
+    K2:EcSecretK,K2':PqSecretK, R:Rand,R2:Rand,R3:Rand,R4:Rand,DL:DataL)
+  induction on S:Sys .
+close
+set-output with-client-auth/pq-unsafe/abbr-hs/se-lm4$.cafe .
+:save-proof .
+-- eof
+
+ipsgopen PROP-ABBRHS-CLSAFE .
+  inv ephSe(S:Sys, A:Prin,B:Prin, PK':PqPublicK, 
+    K2:EcSecretK,K2':PqSecretK, N:Nat) .
+  inv knl-lm7(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,PK':PqPublicK, 
+    R:Rand,R2:Rand, CSPK:ClSignPubK,PSPK:PqSignPubK,SIGN3:Data,SIGN4:Data, N:Nat) .
+  inv scrused-lm9(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK, 
+    K2:EcSecretK,K2':PqSecretK, R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate se-lm5$(S:Sys, A:Prin,B:Prin,PK:EcPublicK,PK':PqPublicK, 
+    K2:EcSecretK,K2':PqSecretK, R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output with-client-auth/pq-unsafe/abbr-hs/se-lm5$.cafe .
+:save-proof .
+eof
+
+load common.cafe protocol.cafe .
+load with-client-auth/pqtls-ca.cafe with-client-auth/properties-fullhs.cafe .
+load with-client-auth/properties-abbrhs.cafe .
+load with-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe .
+load with-client-auth/pq-unsafe/properties-pqunsafe-abbrhs.cafe .
+load with-client-auth/pq-unsafe/inputs/abbr-hs/input.cafe .

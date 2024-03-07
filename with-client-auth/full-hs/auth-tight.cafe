@@ -1,0 +1,52 @@
+open PROP-FULLHS .
+  ops a b b2 : -> Prin .
+  op ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  op s : -> Sys .
+  eq sfM(b,b,a,enc(
+      hsskey(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'), 
+          r || r2 || ecPublic(k2) || encapsC(pk',k2')), r || r2),
+      h(a || b || dl || cspk || sign || pspk || sign2 ||
+        pk || pk' || sign3 || sign4 || 
+        clSignPubK(a) || clsign(clSignPriK(ca), h(a || clSignPubK(a))) || 
+        pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+        ecPublic(k2) || encapsC(pk',k2')))) \in nw(s) = true .
+  red auth-lm2(s,a,b,ecSecret(pk),pqSecret(pk'),k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m)
+    implies auth-tight(s,a,b,b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+
+open PROP-FULLHS .
+  ops a b b2 : -> Prin .
+  op ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  op s : -> Sys .
+  eq sfM(b,b,a,enc(
+      hsskey(ms((k2 | ecSecret(pk)) || (pqSecret(pk') & k2'), 
+          r || r2 || ecPublic(k2) || encapsC(pk',k2')), r || r2),
+      h(a || b || dl || cspk || sign || pspk || sign2 ||
+        pk || pk' || sign3 || sign4 ||
+        clSignPubK(a) || clsign(clSignPriK(ca), h(a || clSignPubK(a))) || 
+        pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+        ecPublic(k2) || encapsC(pk',k2')))) \in nw(s) = false .
+  red auth-tight2(s,a,b,b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl)
+    implies auth-tight(s,a,b,b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?m) .
+close
+eof
+
+load with-client-auth/full-hs/auth-tight.cafe .

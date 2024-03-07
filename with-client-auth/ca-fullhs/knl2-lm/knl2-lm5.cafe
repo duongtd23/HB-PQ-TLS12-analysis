@@ -1,0 +1,70 @@
+open PROP-CA-FULLHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op n2 : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(a) .
+  eq sign4 = pqsign(pqSignPriK(a), h(a || b || dl || 
+      clSignPubK(b) || clsign(clSignPriK(ca), h(b || clSignPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      clsign(clSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || clsign(clSignPriK(ca), h(a || cspk)) ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) || 
+      pk2 || en)) .
+  red knl2-lm4(s,a,b,a2,k,k',pk2,en,r,r2,cspk,sign3,dl,n2)
+    implies knl2-lm5(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign3,sign4,dl,n2) .
+close
+
+open PROP-CA-FULLHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op n2 : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(a) .
+  eq (sign4 = pqsign(pqSignPriK(a), h(a || b || dl || 
+      clSignPubK(b) || clsign(clSignPriK(ca), h(b || clSignPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      clsign(clSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || clsign(clSignPriK(ca), h(a || cspk)) ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) || 
+      pk2 || en))) = false .
+  red knl2-lm5(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign3,sign4,dl,n2) .
+close
+
+open PROP-CA-FULLHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op n2 : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq (pspk = pqSignPubK(a)) = false .
+  red inv4(s,b,a,a2,cspk,pspk)
+    implies knl2-lm5(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign3,sign4,dl,n2) .
+close

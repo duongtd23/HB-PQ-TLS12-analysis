@@ -3,7 +3,7 @@
 -- load protocol.cafe
 
 ** This file contains the full handshake specification of
-**  the extended protocol in case client authentication is not desired
+**  the extended protocol in case client authentication is NOT desired
 mod* PQTLS {
   ex(PROTOCOL-ABBR)
 

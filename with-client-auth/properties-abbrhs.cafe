@@ -1,7 +1,10 @@
+-- This file requires the preloading file `with-client-auth/properties-fullhs.cafe`.
+
 -- load with-client-auth/properties-fullhs.cafe
 
-** define properties in abbreviated handshake
-** those properties are copied from no-client-auth/properties-abbr-hs.cafe **
+** Define security properties from client viewpoint in abbreviated handshake
+**  and lemmas to prove them.
+** Those properties are copied from `no-client-auth/properties-abbr-hs.cafe`.
 mod* PROP-ABBRHS {
   pr(PROP-FULLHS)
 
@@ -124,8 +127,8 @@ mod* PROP-ABBRHS {
     (K2 \in udata(S) and ecSecret(PK) \in udata(S) and
      K2' \in udata(S) and pqSecret(PK') \in udata(S)) .
 }
--- in case ECDH can be broken, and KEMs are safe
--- all properties in this module are proven wrt PROP-ABBRHS-PQSAFE
+-- In case ECDH can be broken, and KEMs are safe.
+-- All properties in this module are proven wrt PROP-ABBRHS-PQSAFE
 mod* PROP-ABBRHS-PQSAFE {
   pr(PROP-ABBRHS)
   pr(PROP-FULLHS-PQSAFE)

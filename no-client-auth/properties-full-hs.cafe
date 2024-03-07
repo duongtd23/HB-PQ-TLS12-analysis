@@ -2,7 +2,7 @@
 
 -- load no-client-auth/pqtls-noca.cafe
 
-** Define desired properties in full handshake and the lemmas to prove them
+** Define desired properties in full handshake and lemmas to prove them
 mod* PROP-FULLHS {
   pr(PQTLS + INTRUDER-CAPABILITIES)
 
@@ -369,7 +369,6 @@ mod* PROP-FULLHS-PQSAFE {
   var S : Sys
   vars A A2 B B2 ?A ?B2 : Prin
   vars R R2 R3 R4 : Rand
-  var CS : Suite
   vars PK PK2 : EcPublicK
   vars PK' PK2' : PqPublicK
   vars K' K2' : PqSecretK
@@ -421,7 +420,7 @@ mod* PROP-FULLHS-PQSAFE {
     Rand Rand Data Nat Nat -> Bool
   eq auth-lm1(S,A,B,B2,?A,PK,PK',R,R2,SIGN3,N,?M) = 
    (not(A = intru or B = intru) and 
-    pqSignSafe and not(pqSignKRevealed(S,B)) and
+    not(pqSignKRevealed(S,B)) and
     (skexM(B2,B,A, PK || PK' || SIGN3 ||
       pqsign(pqSignPriK(B), h(R || R2 || PK || PK')), N) \in nw(S) or
      pqsign(pqSignPriK(B), h(R || R2 || PK || PK')) \in knl(S)))
@@ -455,8 +454,7 @@ mod* PROP-FULLHS-PQSAFE {
 
 -- inv3
   op inv1 : Sys Prin PqSignPubK -> Bool
-  eq inv1(S,B,PSPK) = (not(B = intru) and 
-    pqSignSafe and 
+  eq inv1(S,B,PSPK) = (not(B = intru) and
     pqsign(pqSignPriK(ca), h(B || PSPK)) \in knl(S))
     implies (PSPK = pqSignPubK(B)) .
 }

@@ -1,5 +1,5 @@
 ## Client authentication is not desired
-We consider the extended protocol (with hybrid signatures) in case client authentication is not desired.
+We consider the extended protocol (with hybrid signatures) in case client authentication is **not** desired.
 
 In this folder, you can find:
 
@@ -54,7 +54,7 @@ Script to execute the proofs of the three properties: `ssKeySe`, `fwdSe`, and `a
 To run this script, be sure to modify your paths to Maude and IPSG in that file properly.
 
 #### 5. `gen-proof.sh`
-Script to replicate our proofs with IPSG.
+Script to replicate our proofs in this case with IPSG.
 
 If you want to replicate our formal proofs, first modify your paths to Maude and IPSG in the script properly.
 Then, simply run the script and wait for a couple of minutes.

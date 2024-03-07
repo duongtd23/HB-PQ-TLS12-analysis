@@ -1,0 +1,60 @@
+open PROP-FULLHS-PQSAFE .
+  ops a b ?b2 : -> Prin .
+  ops ?n ?n2 : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq k2' \in knl(s) = true .
+  red (se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?n2)
+      and ephSe(s,a,b,pk',k2,k2',?n2))
+  implies se-lm2(s,a,b,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl) .
+close
+
+open PROP-FULLHS-PQSAFE .
+  ops a b ?b2 : -> Prin .
+  ops ?n ?n2 : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq k2' \in knl(s) = false .
+  eq pqSecret(pk') \in knl(s) = true .
+  red (se-lm1(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl,?n,?n2)
+      and knl-lm7(s,a,b,?b2,pk,pk',r,r2,cspk,pspk,sign3,sign4,?n))
+  implies se-lm2(s,a,b,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl) .
+close
+
+open PROP-FULLHS-PQSAFE .
+  ops a b ?b2 : -> Prin .
+  ops ?n ?n2 : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 : -> Data .
+  op dl : -> DataL .
+  eq k2' \in knl(s) = false .
+  eq pqSecret(pk') \in knl(s) = false .
+  red knl-lm6(s,pqSecret(pk'),k2')
+  implies se-lm2(s,a,b,pk,pk',k2,k2',r,r2,cspk,pspk,sign,sign2,sign3,sign4,dl) .
+close
+eof
+
+load with-client-auth/full-hs/se-lm/se-lm2.cafe .

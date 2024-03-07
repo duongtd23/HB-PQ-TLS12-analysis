@@ -1,6 +1,13 @@
+-- This file requires the preloading files
+--  `with-client-auth/properties-ca-abbrhs.cafe` and
+--  `with-client-auth/pq-unsafe/properties-pqunsafe-ca-fullhs.cafe`.
+
 -- load with-client-auth/properties-ca-abbrhs.cafe
 -- load with-client-auth/pq-unsafe/properties-pqunsafe-ca-fullhs.cafe
 
+** We consider the case when PQ primitives (KEMs and signatures) are unsafe, 
+**  while classical primitives (ECDH,RSA,ECDHSA) are safe.
+** Define additional lemmas in this case wrt abbreviated handshake.
 mod* PROP-CA-ABBRHS-CLSAFE {
   pr(PROP-CA-ABBRHS)
   pr(PROP-CA-FULLHS-CLSAFE)

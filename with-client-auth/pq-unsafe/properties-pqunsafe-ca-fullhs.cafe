@@ -1,7 +1,13 @@
+-- This file requires the preloading files
+--  `with-client-auth/properties-ca-fullhs.cafe` and
+--  `with-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe`.
+
 -- load with-client-auth/properties-ca-fullhs.cafe
 -- load with-client-auth/pq-unsafe/properties-pqunsafe-fullhs.cafe
 
-** define properties in case KEMs are unsafe, while ECDH is safe **
+** We consider the case when PQ primitives (KEMs and signatures) are unsafe, 
+**  while classical primitives (ECDH,RSA,ECDHSA) are safe.
+** Define additional lemmas in this case wrt full handshake.
 mod* PROP-CA-FULLHS-CLSAFE {
   pr(PROP-CA-FULLHS)
   pr(PROP-FULLHS-CLSAFE)

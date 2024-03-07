@@ -1,0 +1,20 @@
+open PROP-CA-FULLHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op n2 : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 : -> Data .
+  op dl : -> DataL .
+  red (knl2-lm2(s,k,k',ecSecret(pk2),en,r,r2,r || r2)
+      and se2-lm3(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign,sign2,dl,n2))
+    implies fwdSe2(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign,sign2,dl,n2) .
+close
+
+eof
+load with-client-auth/ca-fullhs/fwdSe2.cafe .

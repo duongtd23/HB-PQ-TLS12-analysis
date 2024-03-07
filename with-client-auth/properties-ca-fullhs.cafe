@@ -1,6 +1,9 @@
+-- This file requires the preloading file `with-client-auth/properties-fullhs.cafe`.
+
 -- load with-client-auth/properties-fullhs.cafe
 
-** define additional properties, from server viewpoint **
+** Define additional security properties from a server point of view 
+**  with respect to the full handshake and lemmas to prove them.
 mod* PROP-CA-FULLHS {
   pr(PROP-FULLHS)
 
@@ -135,8 +138,8 @@ mod* PROP-CA-FULLHS {
      not(ecdhSafe and K  \in knl(S))) .
 
 -- se2-lm{1,4,5}, knl2-lm{1-3}, scrused2-lm1, auth2-tight, auth2-tight2, auth2-lm{2,3}
--- are proven with respect to (wrt) PROP-CA-FULLHS,
--- the other ones are proven separately wrt PROP-CA-FULLHS-PQSAFE and PROP-CA-FULLHS-CLSAFE
+--  are proven with respect to (wrt) PROP-CA-FULLHS.
+-- The other ones are proven separately wrt PROP-CA-FULLHS-PQSAFE and PROP-CA-FULLHS-CLSAFE
 
 ** lemmas to prove the properties **
 ** secrecy helper lemmas **
@@ -299,8 +302,8 @@ mod* PROP-CA-FULLHS {
         pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
         CSPK || SIGN || PSPK || SIGN2 || PK2 || EN))) \in nw(S) .
 }
--- ECDH can be broken, and KEMs are safe
--- all properties in this module are proven wrt PROP-CA-FULLHS-PQSAFE
+-- In case ECDH can be broken, and KEMs are safe.
+-- All properties in this module are proven wrt PROP-CA-FULLHS-PQSAFE
 mod* PROP-CA-FULLHS-PQSAFE {
   ex(PROP-CA-FULLHS)
   pr(ECDH-UNSAFE-CONFIG)

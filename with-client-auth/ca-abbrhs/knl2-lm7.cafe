@@ -1,0 +1,22 @@
+open PROP-CA-ABBRHS-PQSAFE .
+  ops a b a2 : -> Prin .
+  op n2 : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> ClSignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign3 sign4 : -> Data .
+  op v : -> Version .
+  op cs : -> Suite .
+  op css : -> Suites .
+  op i : -> Sid .
+  op kems : -> PqKemParams .
+  red knl2-lm5(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign3,sign4,
+      i || v || r || css || kems || r2 || cs,
+      n2) 
+    implies knl2-lm7(s,a,b,a2,k,k',pk2,en,r,r2,cspk,pspk,sign3,sign4,i,v,css,cs,kems,n2) .
+close
