@@ -34,3 +34,12 @@ reduce auth(s17, a, b, a, pk, pk', k2, k2', r, r2, dl, cspk, sign, sign2, 0) .
 Result: false : Bool
 CafeInMaude>
 ```
+
+If we enable the reduce command `red nw(s17)` in the open-close fragment, the outputted result will indicate that the following is the only ServerKeyExchange message existed in the network of state `s17`:
+
+```
+skexM(intru,b,a,ecPublic(k) || keygen(k') ||
+  clsign(clSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 0)
+```
+
+There does not exist any ServerKeyExchange message sent by `B`.

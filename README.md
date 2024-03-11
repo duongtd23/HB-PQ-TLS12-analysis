@@ -18,7 +18,7 @@ In this repository, you can find:
 
 ## Executing proof scores
 Proof scores are executable (CafeOBJ code). 
-For better performance, we recommend using CafeInMaude - a second major implementation of CafeOBJ in Maude - instead of the original CafeOBJ.
+For better performance, we recommend using CafeInMaude - the second major implementation of CafeOBJ in Maude - instead of the original CafeOBJ.
 CafeInMaude is available inside IPSG (IPSG is implemented on top of CafeInMaude) - https://github.com/duongtd23/IPSG-tool.
 To install IPSG, we first need to intall Maude - a high performance language, which can be downloaded from here: http://maude.cs.illinois.edu/w/index.php/Maude_download_and_installation. Download and clone the two tools.
 Once install them, 
