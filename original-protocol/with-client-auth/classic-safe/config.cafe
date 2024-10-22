@@ -1,0 +1,7 @@
+-- This file requires the preloading file `properties.cafe`.
+
+mod* CLSAFE-CONFIG {
+  pr (PROP)
+  eq pqSafe = false .
+  eq classicSafe = true .
+}

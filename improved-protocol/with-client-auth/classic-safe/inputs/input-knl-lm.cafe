@@ -1,0 +1,42 @@
+ipsgopen CLSAFE-CONFIG .
+  generate knl-lm2(S:Sys, MS:Data, RS:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/knl-lm/knl-lm2.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate knl-lm3(S:Sys, K:EcSecretK, K':PqSecretK, K2:EcSecretK, K2':PqSecretK,
+    R:Rand,R2:Rand)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/knl-lm/knl-lm3.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate knl-lm3b(S:Sys, K:EcSecretK, K':PqSecretK, K2:EcSecretK, EN:PqCipher,
+    R:Rand,R2:Rand)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/knl-lm/knl-lm3b.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate knl-lm4(S:Sys, K:EcSecretK, K2:EcSecretK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/knl-lm/knl-lm4.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate knl-lm5(S:Sys, K':PqSecretK, K2':PqSecretK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/knl-lm/knl-lm5.cafe .
+:save-proof .
+eof
+
+load improved-protocol/primitives.cafe improved-protocol/protocol.cafe .
+load improved-protocol/with-client-auth/pqtls-ca.cafe improved-protocol/with-client-auth/properties.cafe .
+load improved-protocol/with-client-auth/classic-safe/config.cafe .
+load improved-protocol/with-client-auth/classic-safe/inputs/input-knl-lm.cafe .

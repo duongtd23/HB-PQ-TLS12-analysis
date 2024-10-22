@@ -1,0 +1,24 @@
+open CLSAFE-CONFIG .
+  ops k k2 : -> EcSecretK .
+  ops k' k2' : -> PqSecretK .
+  ops r r2 : -> Rand .
+  op rs : -> Data .
+  op s : -> Sys .
+  red (knl-lm3(s,k,k',k2,k2',r,r2)
+    and knl-lm2(s,ms((k | k2) || (k' & k2'), 
+      r || r2 || ecPublic(k2) || encapsC(keygen(k'),k2')), rs))
+  implies knl-lm1(s,k,k',k2,k2',r,r2,rs) .
+close
+
+open CLSAFE-CONFIG .
+  ops k k2 : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op en : -> PqCipher .
+  ops r r2 : -> Rand .
+  op rs : -> Data .
+  op s : -> Sys .
+  red (knl-lm3b(s,k,k',k2,en,r,r2)
+    and knl-lm2(s,ms((k | k2) || decaps(en,k'), 
+      r || r2 || ecPublic(k2) || en), rs))
+  implies knl-lm1b(s,k,k',k2,en,r,r2,rs) .
+close

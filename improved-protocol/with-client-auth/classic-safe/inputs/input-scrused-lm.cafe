@@ -1,0 +1,128 @@
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm4(S:Sys, PK':PqPublicK) .
+  inv scrused-lm7(S:Sys, PK:EcPublicK) .
+  generate scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, 
+    PK:EcPublicK, PK':PqPublicK, SIGN:Data,SIGN2:Data, N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm1.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  -- inv scrused-lm4(S:Sys, PK':PqPublicK) .
+  -- inv scrused-lm8(S:Sys, EN:PqCipher) .
+  generate scrused-lm2(S:Sys, K:EcSecretK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm2.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, 
+    PK:EcPublicK, PK':PqPublicK, SIGN:Data,SIGN2:Data, N:Nat) .
+  inv scrused-lm7(S:Sys, PK:EcPublicK) .
+  inv scrused-lm8(S:Sys, EN:PqCipher) .
+  generate scrused-lm3(S:Sys, A:Prin,B:Prin,A2:Prin, 
+    PK:EcPublicK, EN:PqCipher, N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm3.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate scrused-lm4(S:Sys, PK':PqPublicK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm4.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm6(S:Sys, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand) .
+  generate scrused-lm5(S:Sys, B:Prin, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm5.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm4(S:Sys, PK':PqPublicK) .
+  inv scrused-lm7(S:Sys, PK:EcPublicK) .
+  generate scrused-lm6(S:Sys, PK:EcPublicK,PK':PqPublicK, R:Rand,R2:Rand)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm6.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  generate scrused-lm7(S:Sys, PK:EcPublicK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm7.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, 
+    PK:EcPublicK, PK':PqPublicK, SIGN:Data,SIGN2:Data, N:Nat) .
+  inv scrused-lm9(S:Sys, K':PqSecretK) .
+  inv scrused-lm4(S:Sys, PK':PqPublicK) .
+  generate scrused-lm8(S:Sys, EN:PqCipher)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm8.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm4(S:Sys, PK':PqPublicK) .
+  inv scrused-lm8(S:Sys, EN:PqCipher) .
+  generate scrused-lm9(S:Sys, K':PqSecretK)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm9.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm11(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate scrused-lm10(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm10.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm13(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate scrused-lm12(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm12.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK, PK':PqPublicK, SIGN:Data,SIGN2:Data, N:Nat) .
+  inv scrused-lm3(S:Sys, A:Prin,B:Prin,A2:Prin, PK:EcPublicK, EN:PqCipher, N:Nat) .
+  generate scrused-lm11(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm11.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK, PK':PqPublicK, SIGN:Data,SIGN2:Data, N:Nat) .
+  inv scrused-lm3(S:Sys, A:Prin,B:Prin,A2:Prin, PK:EcPublicK, EN:PqCipher, N:Nat) .
+  generate scrused-lm13(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/scrused-lm/scrused-lm13.cafe .
+:save-proof .
+
+eof
+
+load improved-protocol/primitives.cafe improved-protocol/protocol.cafe .
+load improved-protocol/with-client-auth/pqtls-ca.cafe improved-protocol/with-client-auth/properties.cafe .
+load improved-protocol/with-client-auth/classic-safe/config.cafe .
+load improved-protocol/with-client-auth/classic-safe/inputs/input-scrused-lm.cafe .

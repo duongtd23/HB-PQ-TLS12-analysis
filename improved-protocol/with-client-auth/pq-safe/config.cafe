@@ -1,0 +1,131 @@
+-- This file requires the preloading file `properties.cafe`.
+
+mod* PQSAFE-CONFIG {
+  pr (PROP)
+-- KEMs and post-quantum signature are unsafe
+  eq pqSafe = true .
+-- ECDH and classical digital signature are safe
+  eq classicSafe = false .
+
+  var S : Sys
+  vars A A2 B B2 ?A ?A2 ?B2 ?B : Prin
+  vars R R2 R3 R4 : Rand
+  vars PK PK2 : EcPublicK
+  vars PK' PK2' : PqPublicK
+  vars EN : PqCipher
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+  vars SIGN SIGN2 SIGN3 SIGN4 SIGNK SIGNK2 ?SIGN3 ?SIGN4 MS : Data
+  vars N N2 ?M ?N ?N2 : Nat
+  vars CSPK CSPK2 : SignPubK
+  vars PSPK PSPK2 : PqSignPubK
+  vars DL RS : DataL
+  var I : Sid 
+  var CS : Suite
+
+-- revealing of long-term private key is defined as
+  eq ltkRevealed(S,B) = pqSignKRevealed(S,B) .
+  eq revealedAfterN(S,B,N) = 
+    (N < timeLeak(pqSignPriK(B), scrLeaked(S))) .
+
+  -- ltkSe
+  op auth-lm1' : Sys Prin Prin Prin Prin EcPublicK PqPublicK 
+    Rand Rand Data Nat Nat -> Bool
+  eq auth-lm1'(S,A,B,B2,?A,PK,PK',R,R2,SIGN,N,?M) = 
+   (not(A = intru or B = intru) and 
+    not(ltkRevealed(S,B)) and
+    (skexM(B2,B,A, PK || PK' || SIGN ||
+        pqsign(pqSignPriK(B), h(R || R2 || PK || PK')), N) \in nw(S) or
+     pqsign(pqSignPriK(B), h(R || R2 || PK || PK')) \in knl(S)))
+   implies
+    skexM(B,B,?A, PK || PK' || 
+      sign(signPriK(B), h(R || R2 || PK || PK')) || 
+      pqsign(pqSignPriK(B), h(R || R2 || PK || PK')), ?M) \in nw(S) .
+  
+  op auth-lm2' : Sys Prin Prin Prin Prin EcSecretK PqSecretK EcSecretK PqCipher
+    Rand Rand SignPubK PqSignPubK Data Data DataL Nat -> Bool
+  eq auth-lm2'(S,A,B,A2,?B,K,K',K2,EN,R,R2,CSPK,PSPK,SIGN,SIGN3,DL,?M) = 
+   (not(A = intru or B = intru) and 
+    certVerM(A2,A,B, SIGN3 || pqsign(pqSignPriK(A), 
+      h(A || B || DL || clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') ||
+        sign(signPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        CSPK || SIGN ||
+        PSPK || pqsign(pqSignPriK(ca), h(A || PSPK)) ||
+        ecPublic(K2) || EN))
+      ) \in nw(S))
+   implies
+    ckexM(A,A,?B, ecPublic(K2) || EN, ?M) \in nw(S) .
+
+  -- no lemma
+  op se-lm3' : Sys Prin Prin Prin EcPublicK PqPublicK EcSecretK PqSecretK 
+    Rand Rand SignPubK Data PqSignPubK Data Data Data 
+    SignPubK Data PqSignPubK Data DataL Nat Nat -> Bool
+  eq se-lm3'(S,A,B,?B2,PK,PK',K2,K2',R,R2,
+    CSPK,SIGN,PSPK,SIGN2,SIGNK,SIGNK2,CSPK2,SIGN3,PSPK2,SIGN4,DL,?N,?N2) = 
+   (not(A = intru or B = intru) and 
+    cfM(A,A,B, enc(
+      hsckey(ms(ecShare(PK,K2) || encapsK(PK',K2'), 
+            R || R2 || ecPublic(K2) || encapsC(PK',K2')), 
+          R || R2), 
+      h(A || B || DL || CSPK || SIGN || PSPK || SIGN2 || 
+        PK || PK' || SIGNK || SIGNK2 ||
+        CSPK2 || SIGN3 || PSPK2 || SIGN4 || ecPublic(K2) || encapsC(PK',K2')))) \in nw(S))
+   implies
+   (certM(?B2,B,A, B || CSPK || SIGN || PSPK || pqsign(pqSignPriK(ca), h(B || PSPK))) \in nw(S) and
+    skexM(?B2,B,A, PK || PK' || SIGNK || SIGNK2, ?N) \in nw(S) and
+    pqverify(PSPK, h(R || R2 || PK || PK'), SIGNK2) and
+    ckexM(A,A,B, ecPublic(K2) || encapsC(PK',K2'), ?N2) \in nw(S)) .
+
+  op se-lm8' : Sys Prin Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand SignPubK Data PqSignPubK Data DataL Nat Nat -> Bool
+  eq se-lm8'(S,A,B,?A2,K,K',PK2,EN,R,R2,CSPK,SIGN,PSPK,SIGN2,DL,?N,?N2) = 
+   (not(A = intru or B = intru) and 
+    sfM(B,B,A, enc(
+      hsskey(ms(ecShare(PK2,K) || decaps(EN, K'), 
+            R || R2 || PK2 || EN), 
+          R || R2), 
+      h(A || B || DL || clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') || 
+        sign(signPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        CSPK || SIGN || PSPK || SIGN2 || PK2 || EN))) \in nw(S))
+   implies
+   (certM(?A2,A,B, A || CSPK || SIGN || PSPK || pqsign(pqSignPriK(ca), h(A || PSPK))) \in nw(S) and
+    ckexM(?A2,A,B, PK2 || EN, ?N) \in nw(S) and
+    skexM(B,B,A, ecPublic(K) || keygen(K') || 
+      sign(signPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+      pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))), 
+    ?N2) \in nw(S)) .
+
+  op se-lm9' : Sys Prin Prin Prin EcSecretK PqSecretK EcPublicK PqCipher
+    Rand Rand SignPubK Data PqSignPubK Data Data Data DataL -> Bool
+  eq se-lm9'(S,A,B,?A2,K,K',PK2,EN,R,R2,CSPK,SIGN,PSPK,SIGN2,?SIGN3,?SIGN4,DL) = 
+   (not(A = intru or B = intru) and 
+    sfM(B,B,A, enc(
+      hsskey(ms(ecShare(PK2,K) || decaps(EN, K'), 
+            R || R2 || PK2 || EN), 
+          R || R2), 
+      h(A || B || DL || clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') || 
+        sign(signPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        CSPK || SIGN || PSPK || SIGN2 || PK2 || EN))) \in nw(S))
+   implies
+   (certVerM(?A2,A,B,?SIGN3 || ?SIGN4) \in nw(S) and 
+    pqverify(PSPK, h(A || B || DL || clCert(B) || pqCert(B) || ecPublic(K) || keygen(K') || 
+        sign(signPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        pqsign(pqSignPriK(B), h(R || R2 || ecPublic(K) || keygen(K'))) ||
+        CSPK || SIGN || PSPK || pqsign(pqSignPriK(ca), h(A || PSPK)) || PK2 || EN), 
+      ?SIGN4)) .
+
+  op inv1' : Sys Prin PqSignPubK -> Bool
+  eq inv1'(S,B,PSPK) = (not(B = intru) and
+    pqsign(pqSignPriK(ca), h(B || PSPK)) \in knl(S))
+    implies (PSPK = pqSignPubK(B)) .
+
+  op inv2' : Sys Prin Prin Prin SignPubK PqSignPubK Data -> Bool
+  eq inv2'(S,A,B,B2,CSPK,PSPK,SIGN) = (not(B = intru) and 
+    certM(B2,B,A, B ||
+      CSPK || SIGN || PSPK || pqsign(pqSignPriK(ca), h(B || PSPK))) \in nw(S))
+    implies (
+      (PSPK = pqSignPubK(B) or not pqSafe)) .
+}

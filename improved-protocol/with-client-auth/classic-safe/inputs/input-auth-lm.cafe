@@ -1,0 +1,24 @@
+ipsgopen CLSAFE-CONFIG .
+  inv ltkSe(S:Sys, A:Prin) .
+  generate auth-lm1(S:Sys, A:Prin,B:Prin,B2:Prin,?A:Prin, PK:EcPublicK,PK':PqPublicK,
+    R:Rand,R2:Rand, SIGN2:Data, N:Nat, ?M:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/auth-lm/auth-lm1.cafe .
+:save-proof .
+
+ipsgopen CLSAFE-CONFIG .
+  inv ltkSe(S:Sys, A:Prin) .
+  generate auth-lm2(S:Sys, A:Prin,B:Prin,A2:Prin,?B:Prin, K:EcSecretK,K':PqSecretK,K2:EcSecretK,EN:PqCipher,
+    R:Rand,R2:Rand, CSPK:SignPubK,PSPK:PqSignPubK,SIGN2:Data,SIGN4:Data, DL:DataL, ?M:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/classic-safe/auth-lm/auth-lm2.cafe .
+:save-proof .
+
+eof
+
+load improved-protocol/primitives.cafe improved-protocol/protocol.cafe .
+load improved-protocol/with-client-auth/pqtls-ca.cafe improved-protocol/with-client-auth/properties.cafe .
+load improved-protocol/with-client-auth/classic-safe/config.cafe .
+load improved-protocol/with-client-auth/classic-safe/inputs/input-auth-lm.cafe .

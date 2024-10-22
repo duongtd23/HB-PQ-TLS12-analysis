@@ -1,0 +1,111 @@
+--  ssKeySe-abbr
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  op signk : -> Data .
+  ops n : -> Nat .
+
+  eq k2' \in knl(s) = true .
+
+  red se-lm4(s,a,b,pk,pk', k2,k2', r,r2,r3,r4, dl) 
+    implies ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,signk,dl,n) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  op signk : -> Data .
+  ops n : -> Nat .
+
+  eq k2' \in knl(s) = false .
+  eq pqSecret(pk') \in knl(s) = true .
+
+  red ephSe2(s,a,b, pk, pk', signk, n) 
+    implies ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,signk,dl,n) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  op signk : -> Data .
+  ops n : -> Nat .
+
+  eq k2' \in knl(s) = false .
+  eq pqSecret(pk') \in knl(s) = false .
+
+  red (knl-lm1(s,ecSecret(pk),pqSecret(pk'),k2,k2',r,r2, r3 || r4) and knl-lm5(s,pqSecret(pk'),k2'))
+    implies ssKeySe-abbr(s,a,b,pk,pk',k2,k2',r,r2,r3,r4,signk,dl,n) .
+close
+
+
+--   ssKeySe-abbr2
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n : -> Nat .
+
+  eq k' \in knl(s) = true .
+
+  red se-lm6(s,a,b,k,k', pk2,en, r,r2,r3,r4, dl) 
+    implies ssKeySe-abbr2(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl,n) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n : -> Nat .
+
+  eq k' \in knl(s) = false .
+  eq pqSecret(en) \in knl(s) = true .
+
+  red ephSe(s,a,b, pk2, en, n) 
+    implies ssKeySe-abbr2(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl,n) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 r3 r4 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n : -> Nat .
+
+  eq k' \in knl(s) = false .
+  eq pqSecret(en) \in knl(s) = false .
+
+  red (knl-lm1b(s,k,k',ecSecret(pk2),en,r,r2, r3 || r4) and knl-lm5b(s,k',en))
+    implies ssKeySe-abbr2(s,a,b,k,k',pk2,en,r,r2,r3,r4,dl,n) .
+close

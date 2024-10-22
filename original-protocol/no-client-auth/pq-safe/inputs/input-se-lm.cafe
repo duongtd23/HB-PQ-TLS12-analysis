@@ -1,0 +1,94 @@
+ipsgopen PQSAFE-CONFIG .
+  inv scrused-lm9(S:Sys, K':PqSecretK) .
+  inv scrused-lm3(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,EN:PqCipher, N:Nat) .
+  generate ephSe(S:Sys, A:Prin,B:Prin, PK2:EcPublicK,EN:PqCipher, N:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/ephSe.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,PK':PqPublicK, SIGN2:Data,N:Nat) .
+  inv scrused-lm9(S:Sys, K':PqSecretK) .
+  generate ephSe2(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,SIGN:Data, N:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/ephSe2.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm1(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,SIGNK:Data, DL:DataL, ?N:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm1.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm2(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,SIGNK:Data, DL:DataL, ?N:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm2.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm3(S:Sys, A:Prin,B:Prin,?B2:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,SIGNK:Data, DL:DataL, ?N:Nat, ?N2:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm3.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv se-lm5(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  inv scrused-lm10(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL) .
+  generate se-lm4(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm4.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv ephSe(S:Sys, A:Prin,B:Prin, PK2:EcPublicK,EN:PqCipher, N:Nat) .
+  inv scrused-lm11(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate se-lm5(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm5.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv se-lm7(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  inv scrused-lm12(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL) .
+  generate se-lm6(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm6.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv ephSe2(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK, SIGN:Data,N:Nat) .
+  inv scrused-lm13(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate se-lm7(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/pq-safe/se-lm/se-lm7.cafe .
+:save-proof .
+
+eof
+
+load original-protocol/primitives.cafe original-protocol/protocol.cafe .
+load original-protocol/no-client-auth/pqtls-noca.cafe original-protocol/no-client-auth/properties.cafe .
+load original-protocol/no-client-auth/pq-safe/config.cafe .
+load original-protocol/no-client-auth/pq-safe/inputs/input-se-lm.cafe .

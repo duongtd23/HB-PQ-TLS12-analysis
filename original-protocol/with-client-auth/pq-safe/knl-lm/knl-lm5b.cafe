@@ -1,0 +1,4234 @@
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op s : -> Sys .
+  red knl-lm5b(init,k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(brkECDH(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(brkECDH(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqPublicK .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(brkKEM(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqCipher .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(brkKEM2(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(brkSign(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> PqPublicK .
+  op r4 : -> EcSecretK .
+  op r5 : -> PqSecretK .
+  op r6 : -> Nat .
+  op s : -> Sys .
+  eq (ckexM(r1,r1,r2,(ecPublic(r4) || encapsC(r3,r5)),r6) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> PqPublicK .
+  op r4 : -> EcSecretK .
+  op r5 : -> PqSecretK .
+  op r6 : -> Nat .
+  op s : -> Sys .
+  eq (ckexM(r1,r1,r2,(ecPublic(r4) || encapsC(r3,r5)),r6) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = true .
+  eq (sf2M(r7,r2,r1,enc(hsskey2(r9,(r4 || r10)),h((r1 || r2 || r5 || r8 || r3 || r4 || r6 || r10)))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = true .
+  eq (sf2M(r7,r2,r1,enc(hsskey2(r9,(r4 || r10)),h((r1 || r2 || r5 || r8 || r3 || r4 || r6 || r10)))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq (ss(s,r1,r2,r5) = session(client,r8,r9)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cChangeCS2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r12 = sign(signPriK(ca),h((r2 || r11)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccert(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  eq (cfM(r1,r1,r2,enc(hsckey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  eq (sfM(r7,r2,r1,enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  eq (cfM(r1,r1,r2,enc(hsckey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  eq (sfM(r7,r2,r1,enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  eq (cfM(r1,r1,r2,enc(hsckey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18)))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (r20 = enc(hsskey(ms(((r17 | ecSecret(r13)) || (pqSecret(r14) & r18)),(r4 || r8 || ecPublic(r17) || encapsC(r14,r18))),(r4 || r8)),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r12 = sign(signPriK(ca),h((r2 || r11)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ccomp(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Rand .
+  op r4 : -> Rand .
+  op r5 : -> EcSecretK .
+  op r6 : -> PqSecretK .
+  op r7 : -> Nat .
+  op s : -> Sys .
+  eq (skexM(r2,r2,r1,(ecPublic(r5) || keygen(r6) || sign(signPriK(r2),h((r3 || r4 || ecPublic(r5) || keygen(r6))))),r7) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certReq(s,r1,r2,r3,r4,r5,r6,r7),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Rand .
+  op r4 : -> Rand .
+  op r5 : -> EcSecretK .
+  op r6 : -> PqSecretK .
+  op r7 : -> Nat .
+  op s : -> Sys .
+  eq (skexM(r2,r2,r1,(ecPublic(r5) || keygen(r6) || sign(signPriK(r2),h((r3 || r4 || ecPublic(r5) || keygen(r6))))),r7) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certReq(s,r1,r2,r3,r4,r5,r6,r7),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r12 = sign(signPriK(ca),h((r2 || r11)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(certVer(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = true .
+  eq (certVerM(r1,r1,r2,sign(signPriK(r1),h((r1 || r2 || r10 || r3 || r4 || r5 || r6 || r8 || r9 || r11 || sign(signPriK(ca),h((r2 || r11))) || r13 || r14 || r15 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))) || ecPublic(r17) || encapsC(r14,r18))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = true .
+  eq (certM(r1,r1,r2,(r1 || signPubK(r1) || sign(signPriK(ca),h((r1 || signPubK(r1)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = true .
+  eq (certM(r7,r2,r1,(r2 || r11 || sign(signPriK(ca),h((r2 || r11))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = true .
+  eq (ckexM(r1,r1,r2,(ecPublic(r17) || encapsC(r14,r18)),r19) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (skexM(r7,r2,r1,(r13 || r14 || r15),r16) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (shM(r7,r2,r1,(r3 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = true .
+  eq (chM(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = true .
+  eq verify(r11,h((r4 || r8 || r13 || r14)),r15) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r12 = sign(signPriK(ca),h((r2 || r11))) .
+  eq (certReqM(r7,r2,r1) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> SignPubK .
+  op r12 : -> Data .
+  op r13 : -> EcPublicK .
+  op r14 : -> PqPublicK .
+  op r15 : -> Data .
+  op r16 : -> Nat .
+  op r17 : -> EcSecretK .
+  op r18 : -> PqSecretK .
+  op r19 : -> Nat .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op r7 : -> Prin .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r12 = sign(signPriK(ca),h((r2 || r11)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = true .
+  eq (sf2M(r7,r2,r1,enc(hsskey2(r9,(r4 || r10)),h((r1 || r2 || r5 || r8 || r3 || r4 || r6 || r10)))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = true .
+  eq (sf2M(r7,r2,r1,enc(hsskey2(r9,(r4 || r10)),h((r1 || r2 || r5 || r8 || r3 || r4 || r6 || r10)))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  eq (sh2M(r7,r2,r1,(r3 || r10 || r5 || r8)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r1,r2,r5) = session(client,r8,r9) .
+  eq (ch2M(r1,r1,r2,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Prin .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq (ss(s,r1,r2,r5) = session(client,r8,r9)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(cfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r4 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suites .
+  op r6 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r4 \in udata(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Suite .
+  op r8 : -> Data .
+  op s : -> Sys .
+  eq contains(r6,r7) = true .
+  eq (r4 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello2(s,r1,r2,r3,r4,r5,r6,r7,r8),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Suite .
+  op r8 : -> Data .
+  op s : -> Sys .
+  eq contains(r6,r7) = true .
+  eq (r4 \in udata(s)) = false .
+  eq ss(s,r1,r2,r5) = session(client,r7,r8) .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello2(s,r1,r2,r3,r4,r5,r6,r7,r8),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Suite .
+  op r8 : -> Data .
+  op s : -> Sys .
+  eq contains(r6,r7) = true .
+  eq (r4 \in udata(s)) = false .
+  eq (ss(s,r1,r2,r5) = session(client,r7,r8)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello2(s,r1,r2,r3,r4,r5,r6,r7,r8),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Suites .
+  op r7 : -> Suite .
+  op r8 : -> Data .
+  op s : -> Sys .
+  eq contains(r6,r7) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(chello2(s,r1,r2,r3,r4,r5,r6,r7,r8),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  eq (shM(r9,r4,r3,(r5 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (skexM(r9,r4,r3,(r15 || r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r9,r4,r3,(r4 || r13 || sign(signPriK(ca),h((r4 || r13))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r4,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  eq (shM(r9,r4,r3,(r5 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (skexM(r9,r4,r3,(r15 || r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r9,r4,r3,(r4 || r13 || sign(signPriK(ca),h((r4 || r13))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r4,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  eq (shM(r9,r4,r3,(r5 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (skexM(r9,r4,r3,(r15 || r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r9,r4,r3,(r4 || r13 || sign(signPriK(ca),h((r4 || r13))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  eq (shM(r9,r4,r3,(r5 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (skexM(r9,r4,r3,(r15 || r16 || r17),r18) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  eq (shM(r9,r4,r3,(r5 || r10 || r11 || r12)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = true .
+  eq (chM(r3,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = true .
+  eq verify(r13,h((r6 || r10 || r15 || r16)),r17) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq r14 = sign(signPriK(ca),h((r4 || r13))) .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (certReqM(r9,r4,r3) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r13 : -> SignPubK .
+  op r14 : -> Data .
+  op r15 : -> EcPublicK .
+  op r16 : -> PqPublicK .
+  op r17 : -> Data .
+  op r18 : -> Nat .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Suites .
+  op r8 : -> PqKemParams .
+  op r9 : -> Prin .
+  op s : -> Sys .
+  eq (r14 = sign(signPriK(ca),h((r4 || r13)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(ckeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqCipher .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkCkeyex(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqCipher .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkCkeyex(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqCipher .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkCkeyex(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkFinish(s,r1,r2,r3),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkFinish(s,r1,r2,r3),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> DataL .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkHello(s,r1,r2,r3),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> DataL .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkHello(s,r1,r2,r3),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkNoti(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> SignPubK .
+  op r4 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkScert(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> SignPubK .
+  op r4 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkScert(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> SignPubK .
+  op r4 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkScert(s,r1,r2,r3,r4),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqPublicK .
+  op r5 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = true .
+  eq (r5 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkSkeyex(s,r1,r2,r3,r4,r5),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqPublicK .
+  op r5 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = true .
+  eq (r5 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkSkeyex(s,r1,r2,r3,r4,r5),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqPublicK .
+  op r5 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = true .
+  eq (r4 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkSkeyex(s,r1,r2,r3,r4,r5),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> EcPublicK .
+  op r4 : -> PqPublicK .
+  op r5 : -> Data .
+  op s : -> Sys .
+  eq (r3 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(fkSkeyex(s,r1,r2,r3,r4,r5),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g1(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g1(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g21(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g21(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g21(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g22(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g22(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Data .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g22(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> DataL .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g23(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> DataL .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g23(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> DataL .
+  op r2 : -> DataL .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(g23(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Version .
+  op r2 : -> Suites .
+  op r3 : -> Suite .
+  op r4 : -> SignPubK .
+  op r5 : -> Prin .
+  op r6 : -> PqKemParams .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gBasic(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Sid .
+  op r2 : -> Rand .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gBasic2(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Sid .
+  op r2 : -> Rand .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gBasic2(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Sid .
+  op r2 : -> Rand .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gBasic2(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqCipher .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq en = r2 .
+  eq k' = r1 .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gDecaps(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqCipher .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq en = r2 .
+  eq (k' = r1) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gDecaps(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqCipher .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (en = r2) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gDecaps(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqCipher .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gDecaps(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqCipher .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gDecaps(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gEcSecretK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gEcSecretK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r2 : -> EcPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gEcShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r2 : -> EcPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gEcShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r2 : -> EcPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gEcShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqSecretK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqSecretK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = false .
+  eq (pqSecret(en) \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = false .
+  eq (pqSecret(en) \in knl(s)) = false .
+  eq (decaps(en,k') \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = false .
+  eq (pqSecret(en) \in knl(s)) = false .
+  eq (decaps(en,k') \in knl(s)) = false .
+  eq pqSecret(r2) = k' .
+  eq pqSecret(en) = r1 .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = false .
+  eq (pqSecret(en) \in knl(s)) = false .
+  eq (decaps(en,k') \in knl(s)) = false .
+  eq pqSecret(r2) = k' .
+  eq (pqSecret(en) = r1) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  eq (k' \in knl(s)) = false .
+  eq (pqSecret(en) \in knl(s)) = false .
+  eq (decaps(en,k') \in knl(s)) = false .
+  eq (pqSecret(r2) = k') = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> PqSecretK .
+  op r2 : -> PqPublicK .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gPqShare(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> SignPriK .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gSign(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> SignPriK .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = true .
+  eq (r2 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gSign(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> SignPriK .
+  op r2 : -> Data .
+  op s : -> Sys .
+  eq (r1 \in knl(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(gSign(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op s : -> Sys .
+  red knl-lm5b(s,k',en) implies knl-lm5b(helloReq(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op s : -> Sys .
+  eq r1 = ca .
+  red knl-lm5b(s,k',en) implies knl-lm5b(rvSignK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op s : -> Sys .
+  eq (r1 = ca) = false .
+  eq (signPriK(r1) \in' scrLeaked(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(rvSignK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op s : -> Sys .
+  eq (r1 = ca) = false .
+  eq (signPriK(r1) \in' scrLeaked(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(rvSignK(s,r1),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = true .
+  eq (cfM(r1,r2,r3,enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = true .
+  eq (cfM(r1,r2,r3,enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq (r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r15 = sign(signPriK(ca),h((r2 || r14)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Rand .
+  op r7 : -> Suite .
+  op s : -> Sys .
+  eq (sh2M(r2,r2,r1,(r3 || r6 || r5 || r7)) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS2(s,r1,r2,r3,r4,r5,r6,r7),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Sid .
+  op r6 : -> Rand .
+  op r7 : -> Suite .
+  op s : -> Sys .
+  eq (sh2M(r2,r2,r1,(r3 || r6 || r5 || r7)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sChangeCS2(s,r1,r2,r3,r4,r5,r6,r7),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suite .
+  op r6 : -> Sid .
+  op s : -> Sys .
+  eq (shM(r2,r2,r1,(r3 || r4 || r5 || r6)) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(scert(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op r3 : -> Version .
+  op r4 : -> Rand .
+  op r5 : -> Suite .
+  op r6 : -> Sid .
+  op s : -> Sys .
+  eq (shM(r2,r2,r1,(r3 || r4 || r5 || r6)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(scert(s,r1,r2,r3,r4,r5,r6),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = true .
+  eq (cfM(r1,r2,r3,enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = true .
+  eq (cfM(r1,r2,r3,enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = true .
+  eq verify(r14,h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)),r19) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = true .
+  eq (skexM(r3,r3,r2,(ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12))))),r13) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = true .
+  eq (certM(r3,r3,r2,(r3 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = true .
+  eq (certM(r1,r2,r3,(r2 || r14 || sign(signPriK(ca),h((r2 || r14))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = true .
+  eq (ckexM(r1,r2,r3,(r16 || r17),r18) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (shM(r3,r3,r2,(r4 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = true .
+  eq (chM(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17))) .
+  eq (certVerM(r1,r2,r3,r19) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq r15 = sign(signPriK(ca),h((r2 || r14))) .
+  eq (r20 = enc(hsckey(ms(((r11 | ecSecret(r16)) || decaps(r17,r12)),(r5 || r8 || r16 || r17)),(r5 || r8)),h((r2 || r3 || r10 || r4 || r5 || r6 || r7 || r8 || r9 || signPubK(r3) || sign(signPriK(ca),h((r3 || signPubK(r3)))) || ecPublic(r11) || keygen(r12) || sign(signPriK(r3),h((r5 || r8 || ecPublic(r11) || keygen(r12)))) || r14 || sign(signPriK(ca),h((r2 || r14))) || r16 || r17)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Sid .
+  op r11 : -> EcSecretK .
+  op r12 : -> PqSecretK .
+  op r13 : -> Nat .
+  op r14 : -> SignPubK .
+  op r15 : -> Data .
+  op r16 : -> EcPublicK .
+  op r17 : -> PqCipher .
+  op r18 : -> Nat .
+  op r19 : -> Data .
+  op r2 : -> Prin .
+  op r20 : -> Data .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Suites .
+  op r7 : -> PqKemParams .
+  op r8 : -> Rand .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq (r15 = sign(signPriK(ca),h((r2 || r14)))) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13,r14,r15,r16,r17,r18,r19,r20),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Sid .
+  op r7 : -> Suites .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r3,r2,r6) = session(server,r8,r9) .
+  eq (ch2M(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (sh2M(r3,r3,r2,(r4 || r10 || r6 || r8)) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Sid .
+  op r7 : -> Suites .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r3,r2,r6) = session(server,r8,r9) .
+  eq (ch2M(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = true .
+  eq (sh2M(r3,r3,r2,(r4 || r10 || r6 || r8)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Sid .
+  op r7 : -> Suites .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq ss(s,r3,r2,r6) = session(server,r8,r9) .
+  eq (ch2M(r1,r2,r3,(r4 || r5 || r6 || r7)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r10 : -> Rand .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Version .
+  op r5 : -> Rand .
+  op r6 : -> Sid .
+  op r7 : -> Suites .
+  op r8 : -> Suite .
+  op r9 : -> Data .
+  op s : -> Sys .
+  eq (ss(s,r3,r2,r6) = session(server,r8,r9)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(sfinish2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> PqKemParams .
+  op r2 : -> Suite .
+  op r3 : -> Sid .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Prin .
+  op r7 : -> Version .
+  op r8 : -> Rand .
+  op r9 : -> Suites .
+  op s : -> Sys .
+  eq contains(r9,r2) = true .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> PqKemParams .
+  op r2 : -> Suite .
+  op r3 : -> Sid .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Prin .
+  op r7 : -> Version .
+  op r8 : -> Rand .
+  op r9 : -> Suites .
+  op s : -> Sys .
+  eq contains(r9,r2) = true .
+  eq (r1 \in udata(s)) = false .
+  eq (r3 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> PqKemParams .
+  op r2 : -> Suite .
+  op r3 : -> Sid .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Prin .
+  op r7 : -> Version .
+  op r8 : -> Rand .
+  op r9 : -> Suites .
+  op s : -> Sys .
+  eq contains(r9,r2) = true .
+  eq (r1 \in udata(s)) = false .
+  eq (r3 \in udata(s)) = false .
+  eq (chM(r4,r5,r6,(r7 || r8 || r9 || r10)) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> PqKemParams .
+  op r2 : -> Suite .
+  op r3 : -> Sid .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Prin .
+  op r7 : -> Version .
+  op r8 : -> Rand .
+  op r9 : -> Suites .
+  op s : -> Sys .
+  eq contains(r9,r2) = true .
+  eq (r1 \in udata(s)) = false .
+  eq (r3 \in udata(s)) = false .
+  eq (chM(r4,r5,r6,(r7 || r8 || r9 || r10)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> PqKemParams .
+  op r2 : -> Suite .
+  op r3 : -> Sid .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Prin .
+  op r7 : -> Version .
+  op r8 : -> Rand .
+  op r9 : -> Suites .
+  op s : -> Sys .
+  eq contains(r9,r2) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> Data .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Sid .
+  op r8 : -> Suites .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq contains(r8,r9) = true .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> Data .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Sid .
+  op r8 : -> Suites .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq contains(r8,r9) = true .
+  eq (r1 \in udata(s)) = false .
+  eq ss(s,r4,r3,r7) = session(server,r9,r10) .
+  eq (ch2M(r2,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> Data .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Sid .
+  op r8 : -> Suites .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq contains(r8,r9) = true .
+  eq (r1 \in udata(s)) = false .
+  eq ss(s,r4,r3,r7) = session(server,r9,r10) .
+  eq (ch2M(r2,r3,r4,(r5 || r6 || r7 || r8)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> Data .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Sid .
+  op r8 : -> Suites .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq contains(r8,r9) = true .
+  eq (r1 \in udata(s)) = false .
+  eq (ss(s,r4,r3,r7) = session(server,r9,r10)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Rand .
+  op r10 : -> Data .
+  op r2 : -> Prin .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Version .
+  op r6 : -> Rand .
+  op r7 : -> Sid .
+  op r8 : -> Suites .
+  op r9 : -> Suite .
+  op s : -> Sys .
+  eq contains(r8,r9) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shello2(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op s : -> Sys .
+  eq (certReqM(r2,r2,r1) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shelloDone(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> Prin .
+  op r2 : -> Prin .
+  op s : -> Sys .
+  eq (certReqM(r2,r2,r1) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(shelloDone(s,r1,r2),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (chM(r3,r4,r5,(r6 || r7 || r8 || r9)) \in nw(s)) = true .
+  eq (shM(r5,r5,r4,(r6 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (certM(r5,r5,r4,(r5 || signPubK(r5) || sign(signPriK(ca),h((r5 || signPubK(r5)))))) \in nw(s)) = true .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (chM(r3,r4,r5,(r6 || r7 || r8 || r9)) \in nw(s)) = true .
+  eq (shM(r5,r5,r4,(r6 || r10 || r11 || r12)) \in nw(s)) = true .
+  eq (certM(r5,r5,r4,(r5 || signPubK(r5) || sign(signPriK(ca),h((r5 || signPubK(r5)))))) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (chM(r3,r4,r5,(r6 || r7 || r8 || r9)) \in nw(s)) = true .
+  eq (shM(r5,r5,r4,(r6 || r10 || r11 || r12)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> true
+open PQSAFE-CONFIG .
+  op en : -> PqCipher .
+  op k' : -> PqSecretK .
+  op r1 : -> EcSecretK .
+  op r10 : -> Rand .
+  op r11 : -> Suite .
+  op r12 : -> Sid .
+  op r2 : -> PqSecretK .
+  op r3 : -> Prin .
+  op r4 : -> Prin .
+  op r5 : -> Prin .
+  op r6 : -> Version .
+  op r7 : -> Rand .
+  op r8 : -> Suites .
+  op r9 : -> PqKemParams .
+  op s : -> Sys .
+  eq (r1 \in udata(s)) = false .
+  eq (r2 \in udata(s)) = false .
+  eq (chM(r3,r4,r5,(r6 || r7 || r8 || r9)) \in nw(s)) = false .
+  red knl-lm5b(s,k',en) implies knl-lm5b(skeyex(s,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12),k',en) .
+close
+
+--> Time taken is 3168ms

@@ -1,0 +1,18 @@
+-- load config.cafe .
+
+** Showing a state in which the predicate `ltkSe` does not hold.
+open PQSAFE-CONFIG .
+  op a : -> Prin .
+  ops s0 s1 s2 s3 : -> Sys .
+
+-- config
+  eq (a = intru) = false .
+  eq ltkRevealed(s0,a) = false .
+
+** transitions leading to the state disproving `ltkSe`
+-- intruder breaks classical signature algorithm to get a's long-term private key
+  eq s0 = init .
+  eq s1 = brkSign(s0,a) .
+
+  red ltkSe(s1,a) .
+close

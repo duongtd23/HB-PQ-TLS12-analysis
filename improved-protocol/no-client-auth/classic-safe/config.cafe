@@ -1,0 +1,17 @@
+-- This file requires the preloading file `properties.cafe`.
+
+mod* CLSAFE-CONFIG {
+  pr (PROP)
+-- KEMs and post-quantum signature are unsafe
+  eq pqSafe = false .
+-- ECDH and classical digital signature are safe
+  eq classicSafe = true .
+
+  vars A B : Prin
+  var N : Nat
+  var S : Sys
+-- revealing of long-term private key is defined as
+  eq ltkRevealed(S,B) = clSignKRevealed(S,B) .
+  eq revealedAfterN(S,B,N) = 
+    (N < timeLeak(signPriK(B), scrLeaked(S))) .
+}

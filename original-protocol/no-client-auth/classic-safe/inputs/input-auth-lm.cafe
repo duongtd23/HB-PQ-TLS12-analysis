@@ -1,0 +1,15 @@
+ipsgopen CLSAFE-CONFIG .
+  inv ltkSe(S:Sys, A:Prin) .
+  generate auth-lm1(S:Sys, A:Prin,B:Prin,B2:Prin,?A:Prin, PK:EcPublicK,PK':PqPublicK,
+    R:Rand,R2:Rand, N:Nat, ?M:Nat)
+  induction on S:Sys .
+close
+set-output original-protocol/no-client-auth/classic-safe/auth-lm/auth-lm1.cafe .
+:save-proof .
+
+eof
+
+load original-protocol/primitives.cafe original-protocol/protocol.cafe .
+load original-protocol/no-client-auth/pqtls-noca.cafe original-protocol/no-client-auth/properties.cafe .
+load original-protocol/no-client-auth/classic-safe/config.cafe .
+load original-protocol/no-client-auth/classic-safe/inputs/input-auth-lm.cafe .

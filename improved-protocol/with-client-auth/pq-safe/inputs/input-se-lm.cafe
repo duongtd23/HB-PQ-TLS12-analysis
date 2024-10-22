@@ -1,0 +1,139 @@
+ipsgopen PQSAFE-CONFIG .
+  inv scrused-lm9(S:Sys, K':PqSecretK) .
+  inv scrused-lm3(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,EN:PqCipher, N:Nat) .
+  generate ephSe(S:Sys, A:Prin,B:Prin, PK2:EcPublicK,EN:PqCipher, N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/ephSe.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv scrused-lm1(S:Sys, A:Prin,B:Prin,B2:Prin, PK:EcPublicK,PK':PqPublicK, SIGN:Data,SIGN2:Data,N:Nat) .
+  inv scrused-lm9(S:Sys, K':PqSecretK) .
+  generate ephSe2(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,SIGN:Data,SIGN2:Data, N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/ephSe2.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate ltkSe(S:Sys, A:Prin) induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/ltkSe.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm1(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,PSPK:PqSignPubK,SIGN2:Data,SIGNK:Data,SIGNK2:Data,
+    CSPK2:SignPubK,SIGN3:Data,PSPK2:PqSignPubK,SIGN4:Data, DL:DataL, ?N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm1.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm2(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,PSPK:PqSignPubK,SIGN2:Data,SIGNK:Data,SIGNK2:Data,
+    CSPK2:SignPubK,SIGN3:Data,PSPK2:PqSignPubK,SIGN4:Data, DL:DataL, ?N:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm2.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm3'(S:Sys, A:Prin,B:Prin,?B2:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,PSPK:PqSignPubK,SIGN2:Data,SIGNK:Data,SIGNK2:Data,
+    CSPK2:SignPubK,SIGN3:Data,PSPK2:PqSignPubK,SIGN4:Data, DL:DataL, ?N:Nat, ?N2:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm3'.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv se-lm5(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  inv scrused-lm10(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL) .
+  generate se-lm4(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm4.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv ephSe(S:Sys, A:Prin,B:Prin, PK2:EcPublicK,EN:PqCipher, N:Nat) .
+  inv scrused-lm11(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate se-lm5(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK,K2:EcSecretK,K2':PqSecretK,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm5.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv se-lm7(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  inv scrused-lm12(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL) .
+  generate se-lm6(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,R3:Rand,R4:Rand, DL:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm6.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv ephSe2(S:Sys, A:Prin,B:Prin, PK:EcPublicK,PK':PqPublicK, SIGN:Data,SIGN2:Data,N:Nat) .
+  inv scrused-lm13(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite) .
+  generate se-lm7(S:Sys, A:Prin,B:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand,I:Sid,CS:Suite)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm7.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm8'(S:Sys, A:Prin,B:Prin,?A2:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,PSPK:PqSignPubK,SIGN2:Data,DL:DataL, ?N:Nat,?N2:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm8'.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate se-lm9'(S:Sys, A:Prin,B:Prin,?A2:Prin, K:EcSecretK,K':PqSecretK,PK2:EcPublicK,EN:PqCipher,
+    R:Rand,R2:Rand, CSPK:SignPubK,SIGN:Data,PSPK:PqSignPubK,SIGN2:Data,?SIGN3:Data,?SIGN4:Data,DL:DataL)
+  induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/se-lm9'.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv inv3(S:Sys) .
+  generate inv1'(S:Sys, B:Prin, PSPK:PqSignPubK) induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/inv1'.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  inv inv1'(S:Sys, B:Prin, PSPK:PqSignPubK) .
+  generate inv2'(S:Sys, A:Prin,B:Prin,B2:Prin, CSPK:SignPubK,PSPK:PqSignPubK, SIGN:Data) induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/inv2'.cafe .
+:save-proof .
+
+ipsgopen PQSAFE-CONFIG .
+  generate inv3(S:Sys) induction on S:Sys .
+close
+set-output improved-protocol/with-client-auth/pq-safe/se-lm/inv3.cafe .
+:save-proof .
+
+eof
+
+load improved-protocol/primitives.cafe improved-protocol/protocol.cafe .
+load improved-protocol/with-client-auth/pqtls-ca.cafe improved-protocol/with-client-auth/properties.cafe .
+load improved-protocol/with-client-auth/pq-safe/config.cafe .
+load improved-protocol/with-client-auth/pq-safe/inputs/input-se-lm.cafe .

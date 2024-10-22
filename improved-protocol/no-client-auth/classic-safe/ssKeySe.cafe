@@ -1,0 +1,180 @@
+--   ssKeSe
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK . 
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq ckexM(a,a,b, ecPublic(k2) || encapsC(pk',k2'), ?n) \in nw(s) = true .
+  eq k2 \in knl(s) = true .
+
+  red ephSe(s,a,b, ecPublic(k2), encapsC(pk',k2'), ?n) 
+    implies ssKeySe(s,a,b,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK . 
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq ckexM(a,a,b, ecPublic(k2) || encapsC(pk',k2'), ?n) \in nw(s) = true .
+  eq k2 \in knl(s) = false .
+  eq ecSecret(pk) \in knl(s) = true .
+
+  red ephSe2(s,a,b, pk, pk', signk, signk2, n) 
+    implies ssKeySe(s,a,b,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK . 
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq ckexM(a,a,b, ecPublic(k2) || encapsC(pk',k2'), ?n) \in nw(s) = true .
+  eq k2 \in knl(s) = false .
+  eq ecSecret(pk) \in knl(s) = false .
+
+  red (knl-lm1(s,ecSecret(pk),pqSecret(pk'),k2,k2',r,r2, r || r2) and knl-lm4(s,ecSecret(pk),k2))
+    implies ssKeySe(s,a,b,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK . 
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq ckexM(a,a,b, ecPublic(k2) || encapsC(pk',k2'), ?n) \in nw(s) = false .
+
+  red se-lm1(s,a,b,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?n)
+    implies ssKeySe(s,a,b,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,n) .
+close
+
+
+--   ssKeySe2
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq skexM(b,b,a, ecPublic(k) || keygen(k') || 
+    sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) || 
+    pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 
+    ?n) \in nw(s) = true .
+  eq k \in knl(s) = true .
+
+  red ephSe2(s,a,b, ecPublic(k), keygen(k'), 
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))),
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))),
+      ?n) 
+    implies ssKeySe2(s,a,b,k,k',pk2,en,r,r2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq skexM(b,b,a, ecPublic(k) || keygen(k') || 
+    sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) || 
+    pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 
+    ?n) \in nw(s) = true .
+  eq k \in knl(s) = false .
+  eq ecSecret(pk2) \in knl(s) = true .
+
+  red ephSe(s,a,b, pk2, en, n) 
+    implies ssKeySe2(s,a,b,k,k',pk2,en,r,r2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq skexM(b,b,a, ecPublic(k) || keygen(k') || 
+    sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) || 
+    pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 
+    ?n) \in nw(s) = true .
+  eq k \in knl(s) = false .
+  eq ecSecret(pk2) \in knl(s) = false .
+
+  red (knl-lm1b(s,k,k',ecSecret(pk2),en,r,r2, r || r2) and knl-lm4(s,k,ecSecret(pk2)))
+    implies ssKeySe2(s,a,b,k,k',pk2,en,r,r2,dl,n) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b : -> Prin .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  op dl : -> DataL .
+  ops n ?n : -> Nat .
+
+  eq skexM(b,b,a, ecPublic(k) || keygen(k') || 
+    sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) || 
+    pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 
+    ?n) \in nw(s) = false .
+
+  red se-lm2(s,a,b,k,k',pk2,en,r,r2,
+      signPubK(b),sign(signPriK(ca), h(b || signPubK(b))),
+      pqSignPubK(b),pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))),
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))),
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))), 
+      dl,?n)
+    implies ssKeySe2(s,a,b,k,k',pk2,en,r,r2,dl,n) .
+close

@@ -1,0 +1,802 @@
+** This file contains the specifications of cryptographic primitives
+** and messages exchanged in the protocol.
+
+-- ECDH key exchange algorithm
+-- The three sorts:
+--  EcSecretK: stands for secret keys
+--  EcPublicK: stands for public keys
+--  EcShareK : stands for shared secrets
+mod! ECDH {
+  [EcSecretK EcPublicK EcShareK]
+
+-- The associated ECDH public key is derived from a secret key
+  op ecPublic : EcSecretK -> EcPublicK {constr}
+-- Constructor of a shared key is a secret key pair
+  op _|_ : EcSecretK EcSecretK -> EcShareK {constr comm}
+-- A shared key is computed from a public and a secret keys
+  op ecShare : EcPublicK EcSecretK -> EcShareK
+
+-- Projection function
+  op ecSecret : EcPublicK -> EcSecretK
+
+  vars K K2 K3 K4 : EcSecretK
+  vars PK PK2 : EcPublicK
+  var KC : EcShareK
+
+  eq ecSecret(ecPublic(K)) = K .
+  eq ecPublic(ecSecret(PK)) = PK .
+  eq (ecPublic(K) = ecPublic(K2)) = (K = K2) .
+  eq (PK = ecPublic(K2)) = (ecSecret(PK) = K2) .
+  eq ecShare(PK,K) = (ecSecret(PK) | K) .
+  eq ((K | K2) = (K3 | K4))
+    = (K = K3 and K2 = K4) or
+      (K = K4 and K2 = K3) .
+}
+-- Key Encapsulation Mechanisms
+mod! PQ-KEM {
+-- secret    public    encapsulation  shared secret
+  [PqSecretK PqPublicK PqCipher       PqShareK]
+
+-- KeyGen and Encaps are probabilistic, 
+--  so we add an argument of PqSecretK
+  op keygen  : PqSecretK -> PqPublicK {constr}
+-- Encaps: returns ciphertext
+  op encapsC : PqPublicK PqSecretK -> PqCipher {constr}
+-- Encaps: returns shared key
+  op encapsK : PqPublicK PqSecretK -> PqShareK
+  op decaps  : PqCipher  PqSecretK -> PqShareK
+
+-- Constructor of a shared key is a secret key pair
+  op _&_ : PqSecretK PqSecretK -> PqShareK {constr}
+
+-- Projection functions
+  op pqSecret : PqPublicK -> PqSecretK
+  op pqSecret : PqCipher  -> PqSecretK
+  op pqPublic : PqCipher  -> PqPublicK
+
+  vars K' K2' K3' K4' : PqSecretK
+  vars PK' PK2' : PqPublicK
+  vars C C2 : PqCipher
+  var KP : PqShareK
+
+  eq pqSecret(keygen(K')) = K' .
+  eq keygen(pqSecret(PK')) = PK' .
+  eq pqSecret(encapsC(PK', K2')) = K2' .
+  eq pqPublic(encapsC(PK', K2')) = PK' .
+  eq (keygen(K') = keygen(K2')) = (K' = K2') .
+  eq (PK' = keygen(K2')) = (pqSecret(PK') = K2') .
+  eq encapsK(PK',K') = (pqSecret(PK') & K') .
+
+-- Decaps(C,K') properly outputs the shared secret only if 
+--  C encapsulates some secret to the associated public key of K'.
+  ceq decaps(C, K') = (K' & pqSecret(C)) if (pqPublic(C) = keygen(K')) .
+-- Decaps(C,K) cannot be (K' & K2') if C does not encapsulate K2'.
+  ceq (decaps(C, K') = (K' & K2')) = false if not(K2' = pqSecret(C)) .
+  ceq (decaps(C, K') = (K2' & K3')) = false if not(K' = K2') .
+
+  eq ((K' & K2') = (K3' & K4'))
+    = (K' = K3' and K2' = K4') .
+  eq (encapsK(PK',K') = encapsK(PK2',K2')) =
+    (PK' = PK2' and K' = K2') .
+  eq (encapsC(PK',K') = encapsC(PK2',K2')) =
+    (PK' = PK2' and K' = K2') .
+  eq (decaps(C,K') = decaps(C2,K2')) =
+    (C = C2 and K' = K2') .
+}
+-- Participants of the protocol
+mod* PRINCIPAL {
+  [Prin]
+  ops intru ca : -> Prin {constr}
+  vars A B : Prin 
+  eq (intru = ca) = false .
+}
+-- Private signature signing keys and public signature verification keys 
+--  of classical digital signature schemes.
+--  We also call the private ones the long-term private keys.
+-- We assume that each principal has one key so that the key is bound to the owner.
+mod! SIGN-KEY {
+  pr(PRINCIPAL)
+  [SignPriK SignPubK]
+  op signPubK : Prin -> SignPubK {constr}
+  op signPriK : Prin -> SignPriK {constr}
+  vars A B : Prin 
+  eq (signPriK(A) = signPriK(B)) = (A = B) .
+  eq (signPubK(A) = signPubK(B)) = (A = B) .
+}
+-- Private signature signing keys and public signature verification keys 
+--  of PQ digital signature schemes.
+--  We also call the private ones the long-term private keys.
+mod! PQ-SIGN-KEY {
+  pr(PRINCIPAL)
+  [PqSignPriK PqSignPubK]
+  op pqSignPubK : Prin -> PqSignPubK {constr}
+  op pqSignPriK : Prin -> PqSignPriK {constr}
+  vars A B : Prin 
+  eq (pqSignPriK(A) = pqSignPriK(B)) = (A = B) .
+  eq (pqSignPubK(A) = pqSignPubK(B)) = (A = B) .
+}
+-- A simple specification of natural numbers, 
+--  which is used to represent system times.
+mod! SIMPLE-NAT {
+-- 0    non-zero   numbers
+  [Zero NzNat    < Nat]
+  op 0 : -> Zero {constr}
+  op s : Nat -> NzNat {constr}
+  ops 1 2 3 4 5 6 7 8 9 : -> NzNat .
+-- We need only plus (+) and less than (<)
+  op _+_ : Nat Nat -> Nat {assoc comm}
+  op _<_ : Nat Nat -> Bool 
+  vars N N2 : Nat
+
+-- Successor of 0 is 1
+  eq 1 = s(0) .
+  eq N + 0 = N .
+  eq N + s(N2) = s(N + N2) .
+  eq (0 < s(N)) = true .
+  eq (N < s(N)) = true .
+  eq (N < 0) = false .
+  eq (N < N) = false .
+  eq (s(N) < N) = false .
+  eq (s(N) < s(N2)) = (N < N2) .
+
+-- A trivial lemma
+  ceq (s(N) < N2) = false if not(N < N2) .
+
+  eq 2 = s(1) .
+  eq 3 = s(2) .
+  eq 4 = s(3) .
+  eq 5 = s(4) .
+  eq 6 = s(5) .
+  eq 7 = s(6) .
+  eq 8 = s(7) .
+  eq 9 = s(8) .
+}
+-- A revealed long-term private key LSK is saved as pkNPair(LSK,N),
+--  where N is the time when LSK was revealed.
+-- Saving the time when keys were revealed is necessary to specify and verify, e.g.,
+--  the forward secrecy property.
+mod* PRI-KEY-TIME {
+  pr(PQ-SIGN-KEY + SIGN-KEY)
+  pr(SIMPLE-NAT)
+  [PriKeyTime]
+  [PqSignPriK SignPriK < SuSignPriK]  -- SuSignPriK is supersort
+  [PqSignPubK SignPubK < SuSignPubK]
+  op pkNPair : SuSignPriK Nat -> PriKeyTime {constr}
+  op priK : PriKeyTime -> SuSignPriK
+  op time : PriKeyTime -> Nat
+  vars N N2 : Nat
+  vars LSK LSK2 : SuSignPriK
+  var CSSK : SignPriK
+  var CSPK : SignPubK
+  var QSSK : PqSignPriK
+  var QSPK : PqSignPubK
+  eq priK(pkNPair(LSK, N)) = LSK .
+  eq time(pkNPair(LSK, N)) = N .
+  eq (pkNPair(LSK, N) = pkNPair(LSK2, N2))
+    = (LSK = LSK2 and N = N2) .
+  eq (CSSK = QSSK) = false .
+  eq (CSPK = QSPK) = false .
+}
+-- Random values, sent in Hello messages
+mod* RANDOM {
+  [Rand]
+}
+-- Cipher suites, sent in ClientHello messages
+mod* CIPHER-SUITES {
+  [Suite < Suites]
+  op contains : Suites Suite -> Bool 
+}
+-- Session IDs, sent in Hello messages
+mod* SID {
+  [Sid]
+}
+-- Protocol versions, sent in Hello messages
+mod* PROTOCOL-VERSION {
+  [Version]
+}
+-- "Supported PQ Parameters" extensions, which contain information about
+--  the KEMs and their parameters the client supported.
+-- E.g., "ML-KEM-512" - indicating that it supports ML-KEM 
+--  with security parameter 512 defined NIST FIPS 203
+mod* PQ-KEM-PARAM {
+  [PqKemParams]
+}
+-- We define the super sort Data standing for any information, e.g., random, keys.
+-- Concatenation of data is in the form, e.g., D1 || D2
+-- errData is a dummy value
+mod! DATA {
+  pr(ECDH + PQ-KEM + PRI-KEY-TIME + RANDOM + CIPHER-SUITES +
+     PQ-KEM-PARAM + SID + PROTOCOL-VERSION)
+  [Data ErrData < Data&Err]
+  [Data&Err < DataL]
+  [EcSecretK EcPublicK EcShareK PqSecretK PqPublicK PqShareK PqCipher 
+   Prin SuSignPubK SuSignPriK PriKeyTime 
+   Rand Suites PqKemParams Sid Version Nat < Data]
+
+-- concatenation function
+  op _||_ : DataL DataL -> DataL {assoc r-assoc constr}
+  op errData : -> ErrData {constr}
+
+-- membership function
+  op _\in_ : DataL DataL -> Bool
+
+  vars D1 D2 : Data
+  vars DE DE2 : Data&Err
+  vars DL DL2 DL3 : DataL
+  var P : Prin
+  var K : EcSecretK
+  var PK : EcPublicK
+  var KC : EcShareK
+  var K' : PqSecretK
+  var PK' : PqPublicK
+  var KP : PqShareK
+  var C : PqCipher
+  var LPK : SuSignPubK
+  var LSK : SuSignPriK
+  var LSKT : PriKeyTime
+  var R : Rand
+  var CS : Suite
+  var SS : Suites
+  var PQKP : PqKemParams
+  var SID : Sid
+  var V : Version
+  var N : Nat
+
+  eq (errData = D1) = false .
+  eq (DE = (DE2 || DL2)) = false .
+  eq ((DE || DL) = (DE2 || DL2)) 
+      = (DE = DE2 and DL = DL2) .
+  eq ((DL || DE) = (DL2 || DE2)) 
+      = (DE = DE2 and DL = DL2) .
+
+  eq (DE || DL) \in DE2 = false .
+  eq (DE || DL) \in DL2 = (DE \in DL2 and DL \in DL2) .
+  eq DE \in DE2 = (DE = DE2) .
+  eq DE \in (DE2 || DL2) = (DE = DE2 or DE \in DL2) .
+
+-- If the given piece of data is non-composite
+  op isBasicType : Data&Err -> Bool
+-- If the non-composite given data is not PriKeyTime
+  op isBTnotPKT : Data -> Bool
+  eq isBasicType(errData) = false .
+  eq isBasicType(D1) = 
+    isBTnotPKT(D1) or (D1 :is PriKeyTime) .
+  eq isBTnotPKT(D1) = (D1 :is Prin) or
+                      (D1 :is EcSecretK) or
+                      (D1 :is EcPublicK) or
+                      (D1 :is EcShareK) or 
+                      (D1 :is PqSecretK) or 
+                      (D1 :is PqPublicK) or 
+                      (D1 :is PqShareK) or 
+                      (D1 :is PqCipher) or 
+                      (D1 :is SuSignPubK) or 
+                      (D1 :is SuSignPriK) or 
+                      (D1 :is Rand) or
+                      (D1 :is Suite) or 
+                      (D1 :is Suites) or 
+                      (D1 :is PqKemParams) or 
+                      (D1 :is Sid) or 
+                      (D1 :is Version) or
+                      (D1 :is Nat) .
+-- Any principal is different from an ECDH secret key, and similar.
+  eq (P = K)       = false .
+  eq (P = PK)      = false .
+  eq (P = KC)      = false .
+  eq (P = K')      = false .
+  eq (P = PK')     = false .
+  eq (P = KP)      = false .
+  eq (P = C)       = false .
+  eq (P = LPK)     = false .
+  eq (P = LSK)     = false .
+  eq (P = LSKT)    = false .
+  eq (P = R)       = false .
+  eq (P = SS)      = false .
+  eq (P = PQKP)    = false .
+  eq (P = SID)     = false .
+  eq (P = V)       = false .
+  eq (P = N)       = false .
+  eq (K = PK)      = false .
+  eq (K = KC)      = false .
+  eq (K = K')      = false .
+  eq (K = PK')     = false .
+  eq (K = KP)      = false .
+  eq (K = C)       = false .
+  eq (K = LPK)     = false .
+  eq (K = LSK)     = false .
+  eq (K = LSKT)    = false .
+  eq (K = R)       = false .
+  eq (K = SS)      = false .
+  eq (K = PQKP)    = false .
+  eq (K = SID)     = false .
+  eq (K = V)       = false .
+  eq (K = N)       = false .
+  eq (PK = KC)     = false .
+  eq (PK = K')     = false .
+  eq (PK = PK')    = false .
+  eq (PK = KP)     = false .
+  eq (PK = C)      = false .
+  eq (PK = LPK)    = false .
+  eq (PK = LSK)    = false .
+  eq (PK = LSKT)   = false .
+  eq (PK = R)      = false .
+  eq (PK = SS)     = false .
+  eq (PK = PQKP)   = false .
+  eq (PK = SID)    = false .
+  eq (PK = V)      = false .
+  eq (PK = N)      = false .
+  eq (KC = K')     = false .
+  eq (KC = PK')    = false .
+  eq (KC = KP)     = false .
+  eq (KC = C)      = false .
+  eq (KC = LPK)    = false .
+  eq (KC = LSK)    = false .
+  eq (KC = LSKT)   = false .
+  eq (KC = R)      = false .
+  eq (KC = SS)     = false .
+  eq (KC = PQKP)   = false .
+  eq (KC = SID)    = false .
+  eq (KC = V)      = false .
+  eq (KC = N)      = false .
+  eq (K' = PK')    = false .
+  eq (K' = KP)     = false .
+  eq (K' = C)      = false .
+  eq (K' = LPK)    = false .
+  eq (K' = LSK)    = false .
+  eq (K' = LSKT)   = false .
+  eq (K' = R)      = false .
+  eq (K' = SS)     = false .
+  eq (K' = PQKP)   = false .
+  eq (K' = SID)    = false .
+  eq (K' = V)      = false .
+  eq (K' = N)      = false .
+  eq (PK' = KP)    = false .
+  eq (PK' = C)     = false .
+  eq (PK' = LPK)   = false .
+  eq (PK' = LSK)   = false .
+  eq (PK' = LSKT)  = false .
+  eq (PK' = R)     = false .
+  eq (PK' = SS)    = false .
+  eq (PK' = PQKP)  = false .
+  eq (PK' = SID)   = false .
+  eq (PK' = V)     = false .
+  eq (PK' = N)     = false .
+  eq (KP = C)      = false .
+  eq (KP = LPK)    = false .
+  eq (KP = LSK)    = false .
+  eq (KP = LSKT)   = false .
+  eq (KP = R)      = false .
+  eq (KP = SS)     = false .
+  eq (KP = PQKP)   = false .
+  eq (KP = SID)    = false .
+  eq (KP = V)      = false .
+  eq (KP = N)      = false .
+  eq (C = LPK)     = false .
+  eq (C = LSK)     = false .
+  eq (C = LSKT)    = false .
+  eq (C = R)       = false .
+  eq (C = SS)      = false .
+  eq (C = PQKP)    = false .
+  eq (C = SID)     = false .
+  eq (C = V)       = false .
+  eq (C = N)       = false .
+  eq (LPK = LSK)   = false .
+  eq (LPK = LSKT)  = false .
+  eq (LPK = R)     = false .
+  eq (LPK = SS)    = false .
+  eq (LPK = PQKP)  = false .
+  eq (LPK = SID)   = false .
+  eq (LPK = V)     = false .
+  eq (LPK = N)     = false .
+  eq (LSK = LSKT)  = false .
+  eq (LSK = R)     = false .
+  eq (LSK = SS)    = false .
+  eq (LSK = PQKP)  = false .
+  eq (LSK = SID)   = false .
+  eq (LSK = V)     = false .
+  eq (LSK = N)     = false .
+  eq (LSKT = R)    = false .
+  eq (LSKT = SS)   = false .
+  eq (LSKT = PQKP) = false .
+  eq (LSKT = SID)  = false .
+  eq (LSKT = V)    = false .
+  eq (LSKT = N)    = false .
+  eq (R = SS)      = false .
+  eq (R = PQKP)    = false .
+  eq (R = SID)     = false .
+  eq (R = V)       = false .
+  eq (R = N)       = false .
+  eq (SS = PQKP)   = false .
+  eq (SS = SID)    = false .
+  eq (SS = V)      = false .
+  eq (SS = N)      = false .
+  eq (PQKP = SID)  = false .
+  eq (PQKP = V)    = false .
+  eq (PQKP = N)    = false .
+  eq (SID = V)     = false .
+  eq (SID = N)     = false .
+  eq (V = N)       = false .
+}
+-- Cryptographic primitives
+mod! PRIMITIVES {
+  ex(DATA)
+
+-- 1) hash function
+-- 2) compute master secret (by prf function)
+-- 3) compute client handshake key (by prf function)
+-- 4) compute server handshake key (by prf function)
+-- 5) encryption
+-- 6) decryption
+-- 7) sign function of classical digital signature schemes
+-- 8) verify function of classical digital signature schemes
+-- 9) sign function of post-quantum digital signature schemes
+-- 10)verify function of post-quantum digital signature schemes
+-- 1)           Data                                Hash
+  op h        : DataL                            -> Data {constr}
+-- 2)           Pms         Seed                    Master secret
+  op ms       : DataL       DataL                -> Data  {constr}
+-- 3)           Ms          Seed                    client HS key
+  op hsckey   : Data        DataL                -> Data  {constr}
+-- 4)           Ms          Seed                    server HS key
+  op hsskey   : Data        DataL                -> Data  {constr}
+-- 5)           Hs key      plaintext               ciphertext
+  op enc      : Data        Data                 -> Data  {constr}
+-- 6)           Hs key      ciphertext              plaintext
+  op dec      : Data        Data                 -> Data&Err {constr}
+-- 7)           Key         Plaintext               Signature
+  op sign     : SignPriK    Data                 -> Data {constr}
+-- 8)           Key         Plaintext  Signature
+  op verify   : SignPubK    Data       Data      -> Bool
+-- 9)           Key         Plaintext               Signature
+  op pqsign   : PqSignPriK  Data                 -> Data {constr}
+-- 10)          Key         Plaintext  Signature
+  op pqverify : PqSignPubK  Data       Data      -> Bool
+
+-- Compute client/server handshake keys in abbreviated handshakes
+  op hsckey2 : Data    DataL                -> Data {constr}
+  op hsskey2 : Data    DataL                -> Data {constr}
+
+  vars A B : Prin 
+  vars K K2 D D2 HSK HSK2 SIGN : Data
+  vars DL DL2 DL3 DL4 PMS PMS2 : DataL
+  vars CSSK CSSK2 : SignPriK
+  vars CSPK CSPK2 : SignPubK
+  vars QSSK QSSK2 : PqSignPriK
+  vars QSPK QSPK2 : PqSignPubK
+
+-- signature verification
+  eq verify(signPubK(A), D, SIGN) = (SIGN = sign(signPriK(A),D)) .
+  eq pqverify(pqSignPubK(A), D, SIGN) = (SIGN = pqsign(pqSignPriK(A),D)) .
+
+-- symmetric decryption
+  eq dec(HSK, enc(HSK,D)) = D .
+  ceq dec(HSK, enc(HSK2,D)) = errData if not(HSK = HSK2) .
+  ceq dec(HSK, D) = errData if not isCipher(D) .
+  eq (dec(HSK, D) = D2) = (D = enc(HSK, D2)) .
+  op isCipher : Data -> Bool 
+  ceq isCipher(D) = false if isBasicType(D) .
+  eq isCipher(h(DL)) = false .
+  eq isCipher(sign(CSSK,D)) = false .
+  eq isCipher(pqsign(QSSK,D)) = false .
+  eq isCipher(ms(PMS,DL)) = false .
+  eq isCipher(hsckey(K,DL)) = false .
+  eq isCipher(hsskey(K,DL)) = false .
+  eq isCipher(hsckey2(K,DL)) = false .
+  eq isCipher(hsskey2(K,DL)) = false .
+  eq isCipher(enc(K,D)) = true .
+
+-- equalities
+  eq (h(DL) = h(DL2)) = (DL = DL2) .
+  eq (sign(CSSK,D) = sign(CSSK2,D2)) = (CSSK = CSSK2 and D = D2) .
+  eq (pqsign(QSSK,D) = pqsign(QSSK2,D2)) = (QSSK = QSSK2 and D = D2) .
+  eq (ms(PMS,DL) = ms(PMS2,DL2)) = (PMS = PMS2 and DL = DL2) .
+  eq (hsckey(K,DL) = hsckey(K2,DL2)) = (K = K2 and DL = DL2) .
+  eq (hsskey(K,DL) = hsskey(K2,DL2)) = (K = K2 and DL = DL2) .
+  eq (enc(K,D) = enc(K2,D2)) = (K = K2 and D = D2) .
+  eq (hsckey2(K,DL) = hsckey2(K2,DL2)) = (K = K2 and DL = DL2) .
+  eq (hsskey2(K,DL) = hsskey2(K2,DL2)) = (K = K2 and DL = DL2) .
+
+  ceq (h(DL) = D2)           = false if isBasicType(D2) .
+  ceq (sign(CSSK,D) = D2)    = false if isBasicType(D2) .
+  ceq (pqsign(QSSK,D) = D2)  = false if isBasicType(D2) .
+  ceq (ms(PMS,DL) = D2)      = false if isBasicType(D2) .
+  ceq (hsckey(K,DL) = D2)    = false if isBasicType(D2) .
+  ceq (hsskey(K,DL) = D2)    = false if isBasicType(D2) .
+  ceq (enc(K,D) = D2)        = false if isBasicType(D2) .
+  ceq (hsckey2(K,DL) = D2)   = false if isBasicType(D2) .
+  ceq (hsskey2(K,DL) = D2)   = false if isBasicType(D2) .
+
+  eq (h(DL) = sign(CSSK2,D2)) = false .
+  eq (h(DL) = pqsign(QSSK2,D2)) = false .
+  eq (h(DL) = ms(PMS2,DL2)) = false .
+  eq (h(DL) = hsckey(K2,DL2)) = false .
+  eq (h(DL) = hsskey(K2,DL2)) = false .
+  eq (h(DL) = enc(K2,D2)) = false .
+  eq (h(DL) = hsckey2(K2,DL2)) = false .
+  eq (h(DL) = hsskey2(K2,DL2)) = false .
+  eq (sign(CSSK,D) = pqsign(QSSK2,D2)) = false .
+  eq (sign(CSSK,D) = ms(PMS2,DL2)) = false .
+  eq (sign(CSSK,D) = hsckey(K2,DL2)) = false .
+  eq (sign(CSSK,D) = hsskey(K2,DL2)) = false .
+  eq (sign(CSSK,D) = enc(K2,D2)) = false .
+  eq (sign(CSSK,D) = hsckey2(K2,DL2)) = false .
+  eq (sign(CSSK,D) = hsskey2(K2,DL2)) = false .
+  eq (pqsign(QSSK,D) = ms(PMS2,DL2)) = false .
+  eq (pqsign(QSSK,D) = hsckey(K2,DL2)) = false .
+  eq (pqsign(QSSK,D) = hsskey(K2,DL2)) = false .
+  eq (pqsign(QSSK,D) = enc(K2,D2)) = false .
+  eq (pqsign(QSSK,D) = hsckey2(K2,DL2)) = false .
+  eq (pqsign(QSSK,D) = hsskey2(K2,DL2)) = false .
+  eq (ms(PMS,DL) = hsckey(K2,DL2)) = false .
+  eq (ms(PMS,DL) = hsskey(K2,DL2)) = false .
+  eq (ms(PMS,DL) = enc(K2,D2)) = false .
+  eq (ms(PMS,DL) = hsckey2(K2,DL2)) = false .
+  eq (ms(PMS,DL) = hsskey2(K2,DL2)) = false .
+  eq (hsckey(K,DL) = hsskey(K2,DL2)) = false .
+  eq (hsckey(K,DL) = enc(K2,D2)) = false .
+  eq (hsckey(K,DL) = hsckey2(K2,DL2)) = false .
+  eq (hsckey(K,DL) = hsskey2(K2,DL2)) = false .
+  eq (hsskey(K,DL) = enc(K2,D2)) = false .
+  eq (hsskey(K,DL) = hsckey2(K2,DL2)) = false .
+  eq (hsskey(K,DL) = hsskey2(K2,DL2)) = false .
+  eq (enc(K,D) = hsckey2(K2,DL2)) = false .
+  eq (enc(K,D) = hsskey2(K2,DL2)) = false .
+  eq (hsckey2(K,DL) = hsskey2(K2,DL2)) = false .
+}
+-- Messages exchanged in the protocol
+mod! MESSAGE {
+  pr(PRIMITIVES)
+  [Msg]
+
+-- ClientHello, ServerHello
+  op chM : Prin Prin Prin DataL -> Msg {constr}
+  op shM : Prin Prin Prin DataL -> Msg {constr}
+
+-- Certificate
+  op certM : Prin Prin Prin DataL -> Msg {constr}
+
+-- Client key exchange, server key exchange messages
+  op skexM : Prin Prin Prin DataL Nat -> Msg {constr}
+  op ckexM : Prin Prin Prin DataL Nat -> Msg {constr}
+
+-- Client Finished, server Finished messages
+  op cfM : Prin Prin Prin Data -> Msg {constr}
+  op sfM : Prin Prin Prin Data -> Msg {constr}
+
+-- Client/server Hello 2 - abbreviated handshake
+  op ch2M : Prin Prin Prin DataL -> Msg {constr}
+  op sh2M : Prin Prin Prin DataL -> Msg {constr}
+
+-- Client/server Finished 2 - abbreviated handshake
+  op sf2M : Prin Prin Prin Data -> Msg {constr}
+  op cf2M : Prin Prin Prin Data -> Msg {constr}
+
+-- Hello request (S -> C)
+  op heReM : Prin Prin Prin -> Msg {constr}
+
+-- Server hello done
+  op shDnM : Prin Prin Prin -> Msg {constr}
+
+-- Change cipher spec
+  op ccsM : Prin Prin Prin -> Msg {constr}
+
+-- When client authentication is desired
+-- Certificate request
+  op certReqM : Prin Prin Prin -> Msg {constr}
+-- Certificate verify
+  op certVerM : Prin Prin Prin DataL -> Msg {constr}
+
+  vars M M1 M2 : Msg
+  vars A A' B A2 B2 A2' : Prin
+  vars N N2 : Nat
+  vars D D2 : Data 
+  vars DL DL2 : DataL
+
+-- Macro
+  op eqPrins : Prin Prin Prin Prin Prin Prin -> Bool 
+  eq (eqPrins(A',A,B,A2',A2,B2)) = (A' = A2' and A = A2 and B = B2) .
+
+  eq (chM(A',A,B,DL) = chM(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+  eq (shM(A',A,B,DL) = shM(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+  eq (certM(A',A,B,DL) = certM(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+  eq (skexM(A',A,B,DL,N) = skexM(A2',A2,B2,DL2,N2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2 and N = N2) .
+  eq (ckexM(A',A,B,DL,N) = ckexM(A2',A2,B2,DL2,N2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2 and N = N2) .
+  eq (cfM(A',A,B,D) = cfM(A2',A2,B2,D2))
+    = (eqPrins(A',A,B,A2',A2,B2) and D = D2) .
+  eq (sfM(A',A,B,D) = sfM(A2',A2,B2,D2))
+    = (eqPrins(A',A,B,A2',A2,B2) and D = D2) .
+  eq (ch2M(A',A,B,DL) = ch2M(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+  eq (sh2M(A',A,B,DL) = sh2M(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+  eq (cf2M(A',A,B,D) = cf2M(A2',A2,B2,D2))
+    = (eqPrins(A',A,B,A2',A2,B2) and D = D2) .
+  eq (sf2M(A',A,B,D) = sf2M(A2',A2,B2,D2))
+    = (eqPrins(A',A,B,A2',A2,B2) and D = D2) .
+  eq (certVerM(A',A,B,DL) = certVerM(A2',A2,B2,DL2))
+    = (eqPrins(A',A,B,A2',A2,B2) and DL = DL2) .
+
+  eq (chM(A',A,B,DL) = shM(A2',A2,B2,DL2)) = false .
+  eq (chM(A',A,B,DL) = certM(A2',A2,B2,DL2)) = false .
+  eq (chM(A',A,B,DL) = skexM(A2',A2,B2,DL2,N2)) = false .
+  eq (chM(A',A,B,DL) = ckexM(A2',A2,B2,DL2,N2)) = false .
+  eq (chM(A',A,B,DL) = cfM(A2',A2,B2,D2)) = false .
+  eq (chM(A',A,B,DL) = sfM(A2',A2,B2,D2)) = false .
+  eq (chM(A',A,B,DL) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (chM(A',A,B,DL) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (chM(A',A,B,DL) = cf2M(A2',A2,B2,D2)) = false .
+  eq (chM(A',A,B,DL) = sf2M(A2',A2,B2,D2)) = false .
+  eq (chM(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (chM(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (chM(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+  eq (chM(A',A,B,DL) = certReqM(A2',A2,B2)) = false .
+  eq (chM(A',A,B,DL) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (shM(A',A,B,DL) = certM(A2',A2,B2,DL2)) = false .
+  eq (shM(A',A,B,DL) = skexM(A2',A2,B2,DL2,N2)) = false .
+  eq (shM(A',A,B,DL) = ckexM(A2',A2,B2,DL2,N2)) = false .
+  eq (shM(A',A,B,DL) = cfM(A2',A2,B2,D2)) = false .
+  eq (shM(A',A,B,DL) = sfM(A2',A2,B2,D2)) = false .
+  eq (shM(A',A,B,DL) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (shM(A',A,B,DL) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (shM(A',A,B,DL) = cf2M(A2',A2,B2,D2)) = false .
+  eq (shM(A',A,B,DL) = sf2M(A2',A2,B2,D2)) = false .
+  eq (shM(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (shM(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (shM(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+  eq (shM(A',A,B,DL) = certReqM(A2',A2,B2)) = false .
+  eq (shM(A',A,B,DL) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (certM(A',A,B,DL) = skexM(A2',A2,B2,DL2,N2)) = false .
+  eq (certM(A',A,B,DL) = ckexM(A2',A2,B2,DL2,N2)) = false .
+  eq (certM(A',A,B,DL) = cfM(A2',A2,B2,D2)) = false .
+  eq (certM(A',A,B,DL) = sfM(A2',A2,B2,D2)) = false .
+  eq (certM(A',A,B,DL) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (certM(A',A,B,DL) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (certM(A',A,B,DL) = cf2M(A2',A2,B2,D2)) = false .
+  eq (certM(A',A,B,DL) = sf2M(A2',A2,B2,D2)) = false .
+  eq (certM(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (certM(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (certM(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+  eq (certM(A',A,B,DL) = certReqM(A2',A2,B2)) = false .
+  eq (certM(A',A,B,DL) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (skexM(A',A,B,DL,N) = ckexM(A2',A2,B2,DL2,N2)) = false .
+  eq (skexM(A',A,B,DL,N) = cfM(A2',A2,B2,D2)) = false .
+  eq (skexM(A',A,B,DL,N) = sfM(A2',A2,B2,D2)) = false .
+  eq (skexM(A',A,B,DL,N) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (skexM(A',A,B,DL,N) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (skexM(A',A,B,DL,N) = cf2M(A2',A2,B2,D2)) = false .
+  eq (skexM(A',A,B,DL,N) = sf2M(A2',A2,B2,D2)) = false .
+  eq (skexM(A',A,B,DL,N) = heReM(A2',A2,B2)) = false .
+  eq (skexM(A',A,B,DL,N) = shDnM(A2',A2,B2)) = false .
+  eq (skexM(A',A,B,DL,N) = ccsM(A2',A2,B2)) = false .
+  eq (skexM(A',A,B,DL,N) = certReqM(A2',A2,B2)) = false .
+  eq (skexM(A',A,B,DL,N) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (ckexM(A',A,B,DL,N) = cfM(A2',A2,B2,D2)) = false .
+  eq (ckexM(A',A,B,DL,N) = sfM(A2',A2,B2,D2)) = false .
+  eq (ckexM(A',A,B,DL,N) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (ckexM(A',A,B,DL,N) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (ckexM(A',A,B,DL,N) = cf2M(A2',A2,B2,D2)) = false .
+  eq (ckexM(A',A,B,DL,N) = sf2M(A2',A2,B2,D2)) = false .
+  eq (ckexM(A',A,B,DL,N) = heReM(A2',A2,B2)) = false .
+  eq (ckexM(A',A,B,DL,N) = shDnM(A2',A2,B2)) = false .
+  eq (ckexM(A',A,B,DL,N) = ccsM(A2',A2,B2)) = false .
+  eq (ckexM(A',A,B,DL,N) = certReqM(A2',A2,B2)) = false .
+  eq (ckexM(A',A,B,DL,N) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (cfM(A',A,B,D) = sfM(A2',A2,B2,D2)) = false .
+  eq (cfM(A',A,B,D) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (cfM(A',A,B,D) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (cfM(A',A,B,D) = cf2M(A2',A2,B2,D2)) = false .
+  eq (cfM(A',A,B,D) = sf2M(A2',A2,B2,D2)) = false .
+  eq (cfM(A',A,B,D) = heReM(A2',A2,B2)) = false .
+  eq (cfM(A',A,B,D) = shDnM(A2',A2,B2)) = false .
+  eq (cfM(A',A,B,D) = ccsM(A2',A2,B2)) = false .
+  eq (cfM(A',A,B,D) = certReqM(A2',A2,B2)) = false .
+  eq (cfM(A',A,B,D) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (sfM(A',A,B,D) = ch2M(A2',A2,B2,DL2)) = false .
+  eq (sfM(A',A,B,D) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (sfM(A',A,B,D) = cf2M(A2',A2,B2,D2)) = false .
+  eq (sfM(A',A,B,D) = sf2M(A2',A2,B2,D2)) = false .
+  eq (sfM(A',A,B,D) = heReM(A2',A2,B2)) = false .
+  eq (sfM(A',A,B,D) = shDnM(A2',A2,B2)) = false .
+  eq (sfM(A',A,B,D) = ccsM(A2',A2,B2)) = false .
+  eq (sfM(A',A,B,D) = certReqM(A2',A2,B2)) = false .
+  eq (sfM(A',A,B,D) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (ch2M(A',A,B,DL) = sh2M(A2',A2,B2,DL2)) = false .
+  eq (ch2M(A',A,B,DL) = cf2M(A2',A2,B2,D2)) = false .
+  eq (ch2M(A',A,B,DL) = sf2M(A2',A2,B2,D2)) = false .
+  eq (ch2M(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (ch2M(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (ch2M(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+  eq (ch2M(A',A,B,DL) = certReqM(A2',A2,B2)) = false .
+  eq (ch2M(A',A,B,DL) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (sh2M(A',A,B,DL) = cf2M(A2',A2,B2,D2)) = false .
+  eq (sh2M(A',A,B,DL) = sf2M(A2',A2,B2,D2)) = false .
+  eq (sh2M(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (sh2M(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (sh2M(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+  eq (sh2M(A',A,B,DL) = certReqM(A2',A2,B2)) = false .
+  eq (sh2M(A',A,B,DL) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (cf2M(A',A,B,D) = sf2M(A2',A2,B2,D2)) = false .
+  eq (cf2M(A',A,B,D) = heReM(A2',A2,B2)) = false .
+  eq (cf2M(A',A,B,D) = shDnM(A2',A2,B2)) = false .
+  eq (cf2M(A',A,B,D) = ccsM(A2',A2,B2)) = false .
+  eq (cf2M(A',A,B,D) = certReqM(A2',A2,B2)) = false .
+  eq (cf2M(A',A,B,D) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (sf2M(A',A,B,D) = heReM(A2',A2,B2)) = false .
+  eq (sf2M(A',A,B,D) = shDnM(A2',A2,B2)) = false .
+  eq (sf2M(A',A,B,D) = ccsM(A2',A2,B2)) = false .
+  eq (sf2M(A',A,B,D) = certReqM(A2',A2,B2)) = false .
+  eq (sf2M(A',A,B,D) = certVerM(A2',A2,B2,DL2)) = false .
+
+  eq (certReqM(A',A,B) = certVerM(A2',A2,B2,DL2)) = false .
+  eq (certVerM(A',A,B,DL) = heReM(A2',A2,B2)) = false .
+  eq (certVerM(A',A,B,DL) = shDnM(A2',A2,B2)) = false .
+  eq (certVerM(A',A,B,DL) = ccsM(A2',A2,B2)) = false .
+}
+-- Set data structure specification
+mod! SET (D :: TRIV) {
+  [Elt.D < Set]
+  op empty : -> Set {constr}
+  op _;_ : Set Set -> Set {assoc constr comm idem id: empty}
+  op _\in_ : Elt.D Set -> Bool
+  var S : Set
+  vars E1 E2 : Elt.D
+  eq E1 \in empty = false .
+  eq E1 \in E2 = (E1 = E2) .
+  eq E1 \in (E2 ; S) = (E1 = E2) or (E1 \in S) .
+}
+-- Associative-commutative (AC-) collections
+mod! BAG (D :: TRIV) {
+  [Elt.D < Bag]
+  op void : -> Bag {constr}
+  op _,_ : Bag Bag -> Bag {assoc constr comm id: void}
+  op _\in_ : Elt.D Bag -> Bool
+  var B : Bag
+  vars E1 E2 : Elt.D
+  eq E1 \in void = false .
+  eq E1 \in E2 = (E1 = E2) .
+  eq E1 \in (E2 , B) = (E1 = E2) or (E1 \in B) .
+}
+view TRIV2MESSAGE from TRIV to MESSAGE {
+  sort Elt -> Msg
+}
+view TRIV2DATA from TRIV to DATA {
+  sort Elt -> Data
+}
+-- Network is defined as an AC-collection of messages
+mod! NETWORK {
+  pr(BAG(D <= TRIV2MESSAGE)*{sort Bag -> Network})
+}
+-- Session information
+mod! SESSION {
+  pr(DATA)
+  [Role Session]
+  ops client server : -> Role {constr}
+  eq (client = server) = false .
+  op none : -> Session {constr}
+--                         master secret
+  op session : Role Suite  Data         -> Session {constr}
+  op role : Session -> Role 
+  op ms : Session -> Data 
+  vars CS CS2 : Suite
+  vars MS MS2 : Data
+  vars R R2 : Role
+  eq role(session(R,CS,MS)) = R .
+  eq ms(session(R,CS,MS)) = MS .
+  eq (session(R,CS,MS) = none) = false .
+  eq (session(R,CS,MS) = session(R2,CS2,MS2))
+     = (CS = CS2 and MS = MS2 and R = R2) .
+}

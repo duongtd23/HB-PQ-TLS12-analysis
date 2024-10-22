@@ -1,0 +1,5 @@
+mod* PQSAFE-CONFIG {
+  pr(PROP)
+  eq classicSafe = false .
+  eq pqSafe = true .
+}

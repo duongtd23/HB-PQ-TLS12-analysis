@@ -1,0 +1,100 @@
+mod* EXEC {
+  pr(PQTLS + INTRUDER-CAPABILITIES)
+
+  var S : Sys
+  vars A B : Prin
+  vars R R2 : Rand
+  var CS : Suite
+  var I : Sid
+  vars K' K2' : PqSecretK
+  vars K K2 : EcSecretK
+
+-- Check that client and server can complete a session, obtaining same handshake keys
+  op check1 : Sys Prin Prin EcSecretK PqSecretK 
+    EcSecretK PqSecretK Rand Rand Sid Suite -> Bool
+  eq check1(S,A,B,K,K',K2,K2',R,R2,I,CS) = 
+    (ss(S,A,B,I) = session(client,CS,
+        ms((K | K2) || (K' & K2'), 
+            R || R2 || ecPublic(K2) || encapsC(keygen(K'),K2'))) and
+     ss(S,B,A,I) = session(server,CS,
+        ms((K | K2) || (K' & K2'), 
+            R || R2 || ecPublic(K2) || encapsC(keygen(K'),K2')))) .
+}
+-- Proof showing that check1 can happen
+open EXEC .
+  ops a b : -> Prin .
+  op cs : -> Suite .
+  op css : -> Suites .
+  op i : -> Sid .
+  ops k k2 : -> EcSecretK .
+  ops k' k2' : -> PqSecretK .
+  op kems : -> PqKemParams .
+  ops pk pk2 : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op en : -> PqCipher .
+  ops cspk cspk2 : -> SignPubK .
+  ops r r2 : -> Rand .
+  ops s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 : -> Sys .
+  ops sign sign2 sign$ sign2$ cfin sfin h : -> Data .
+  op v : -> Version .
+  
+  eq (a = intru) = false .
+  eq (b = intru) = false .
+  eq (a = b) = false .
+  eq (r = r2) = false .
+  eq (k = k2) = false .
+  eq (k' = k2') = false .
+  eq contains(css,cs) = true .
+  eq pk = ecPublic(k) .
+  eq pk' = keygen(k') .
+  eq pk2 = ecPublic(k2) .
+  eq en = encapsC(keygen(k'),k2') .
+  eq cspk = signPubK(b) .
+  eq cspk2 = signPubK(a) .
+  eq sign = sign(signPriK(ca), h(b || signPubK(b))) .
+  eq sign$ = sign(signPriK(ca), h(a || signPubK(a))) .
+  eq sign2 = sign(signPriK(b), h(r || r2 || pk || pk')) .
+  eq h = h(a || b || i || v || r || css || kems || r2 || cs || 
+      cspk || sign ||
+      pk || pk' || sign2 ||
+      cspk2 || sign$ ||
+      pk2 || en) .
+  eq sign2$ = sign(signPriK(a), h) .
+  eq cfin = enc(hsckey(ms((k | k2) || (k' & k2'), 
+      r || r2 || pk2 || en), r || r2),
+    h) .
+  eq sfin = enc(hsskey(ms((k | k2) || (k' & k2'), 
+      r || r2 || pk2 || en), r || r2),
+    h) .
+
+  eq s0 = init .
+  eq s1 = chello(s0,a,b,v,r,css,kems) .
+  eq s2 = shello(s1,r2,cs,i,a,a,b,v,r,css,kems) .
+  eq s3 = scert(s2,a,b,v,r2,cs,i) .
+  eq s4 = skeyex(s3,k,k',a,a,b,v,r,css,kems,r2,cs,i) .
+  eq s5 = certReq(s4,a,b,r,r2,k,k',0) .
+
+  eq s6 = ccert(s5,a,b,v,r,css,kems,b,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0) .
+  eq s7 = ckeyex(s6,k2,k2',a,b,v,r,css,kems,b,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0) .
+  eq s8 = certVer(s7,a,b,v,r,css,kems,b,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0,k2,k2',1) .
+  eq s9 = cfinish(s8,a,b,v,r,css,kems,b,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0,k2,k2',1) .
+
+  eq s10 = sfinish(s9,a,a,b,v,r,css,kems,r2,cs,i,
+    k,k',0,cspk2,sign$,pk2,en,1,sign2$,cfin) .
+  eq s11 = ccomp(s10,a,b,v,r,css,kems,b,r2,cs,i,
+    cspk,sign,pk,pk',sign2,0,k2,k2',1,sfin) .
+
+  red check1(s11,a,b,k,k',k2,k2',r,r2,i,cs) .   -- true is returned
+  -- red ss(s11,a,b,i) .
+  -- red ss(s11,b,a,i) .
+close
+
+eof
+load original-protocol/primitives.cafe .
+load original-protocol/protocol.cafe .
+load original-protocol/with-client-auth/pqtls-ca.cafe .
+load original-protocol/with-client-auth/exec.cafe .

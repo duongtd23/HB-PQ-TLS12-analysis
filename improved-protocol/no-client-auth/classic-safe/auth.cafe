@@ -1,0 +1,79 @@
+open CLSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op dl : -> DataL .
+  eq cspk = signPubK(b) .
+  eq signk = sign(signPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' ||
+    sign(signPriK(b), h(r || r2 || pk || pk')) || signk2, ?n) \in nw(s) = true .
+  red auth-lm1(s,a,b,?b2,?a,pk,pk',r,r2,signk2,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?m) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op dl : -> DataL .
+  eq cspk = signPubK(b) .
+  eq signk = sign(signPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' ||
+    sign(signPriK(b), h(r || r2 || pk || pk')) || signk2, ?n) \in nw(s) = false .
+  red se-lm3(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?m) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op dl : -> DataL .
+  eq cspk = signPubK(b) .
+  eq (signk = sign(signPriK(b), h(r || r2 || pk || pk'))) = false .
+  red se-lm3(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?m) .
+close
+
+open CLSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 signk signk2 : -> Data .
+  op dl : -> DataL .
+  eq (cspk = signPubK(b)) = false .
+  red (inv2(s,a,b,?b2,cspk,pspk,sign2) and
+      se-lm3(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?n,?m))
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,dl,?m) .
+close

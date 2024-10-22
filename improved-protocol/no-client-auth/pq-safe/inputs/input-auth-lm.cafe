@@ -1,0 +1,15 @@
+ipsgopen PQSAFE-CONFIG .
+  inv ltkSe(S:Sys, A:Prin) .
+  generate auth-lm1'(S:Sys, A:Prin,B:Prin,B2:Prin,?A:Prin, PK:EcPublicK,PK':PqPublicK,
+    R:Rand,R2:Rand,SIGN:Data, N:Nat, ?M:Nat)
+  induction on S:Sys .
+close
+set-output improved-protocol/no-client-auth/pq-safe/auth-lm/auth-lm1'.cafe .
+:save-proof .
+
+eof
+
+load improved-protocol/primitives.cafe improved-protocol/protocol.cafe .
+load improved-protocol/no-client-auth/pqtls-noca.cafe improved-protocol/no-client-auth/properties.cafe .
+load improved-protocol/no-client-auth/pq-safe/config.cafe .
+load improved-protocol/no-client-auth/pq-safe/inputs/input-auth-lm.cafe .

@@ -1,0 +1,222 @@
+open PQSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 signk signk2 : -> Data .
+  ops cspk cspk2 : -> SignPubK .
+  ops pspk pspk2 : -> PqSignPubK .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq signk2 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' || signk ||
+    pqsign(pqSignPriK(b), h(r || r2 || pk || pk')), ?n) \in nw(s) = true .
+  red auth-lm1'(s,a,b,?b2,?a,pk,pk',r,r2,signk,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 signk signk2 : -> Data .
+  ops cspk cspk2 : -> SignPubK .
+  ops pspk pspk2 : -> PqSignPubK .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq signk2 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk')) .
+  eq skexM(?b2,b,a, pk || pk' || signk ||
+    pqsign(pqSignPriK(b), h(r || r2 || pk || pk')), ?n) \in nw(s) = false .
+  red se-lm3'(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 signk signk2 : -> Data .
+  ops cspk cspk2 : -> SignPubK .
+  ops pspk pspk2 : -> PqSignPubK .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(b) .
+  eq (signk2 = pqsign(pqSignPriK(b), h(r || r2 || pk || pk'))) = false .
+  red se-lm3'(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 signk signk2 : -> Data .
+  ops cspk cspk2 : -> SignPubK .
+  ops pspk pspk2 : -> PqSignPubK .
+  op dl : -> DataL .
+  eq (pspk = pqSignPubK(b)) = false .
+  eq certM(?b2,b,a, b || cspk || sign || pspk || pqsign(pqSignPriK(ca),h((b || pspk)))) \in nw(s) = true .
+  red inv2'(s,a,b,?b2,cspk,pspk,sign)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?a ?b2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k2 : -> EcSecretK .
+  op k2' : -> PqSecretK .
+  op pk : -> EcPublicK .
+  op pk' : -> PqPublicK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 sign3 sign4 signk signk2 : -> Data .
+  ops cspk cspk2 : -> SignPubK .
+  ops pspk pspk2 : -> PqSignPubK .
+  op dl : -> DataL .
+  eq (pspk = pqSignPubK(b)) = false .
+  eq certM(?b2,b,a, b || cspk || sign || pspk || pqsign(pqSignPriK(ca),h((b || pspk)))) \in nw(s) = false .
+  red se-lm3'(s,a,b,?b2,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?n,?m)
+    implies auth(s,a,b,?a,pk,pk',k2,k2',r,r2,cspk,sign,pspk,sign2,signk,signk2,cspk2,sign3,pspk2,sign4,dl,?m) .
+close
+
+
+-- client auth
+open PQSAFE-CONFIG .
+  ops a b ?b ?a2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 ?sign3 ?sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(a) .
+  eq ?sign4 = pqsign(pqSignPriK(a), h(a || b || dl || 
+      signPubK(b) || sign(signPriK(ca), h(b || signPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || sign ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+      pk2 || en)) .
+  eq certVerM(?a2,a,b, ?sign3 ||
+      pqsign(pqSignPriK(a), h(a || b || dl || 
+      signPubK(b) || sign(signPriK(ca), h(b || signPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || sign ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+      pk2 || en)) 
+    ) \in nw(s) = true .
+  red auth-lm2'(s,a,b,?a2,?b,k,k',ecSecret(pk2),en,r,r2,cspk,pspk,sign,?sign3,dl,?m)
+    implies auth2(s,a,b,?b,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?b ?a2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 ?sign3 ?sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(a) .
+  eq ?sign4 = pqsign(pqSignPriK(a), h(a || b || dl || 
+      signPubK(b) || sign(signPriK(ca), h(b || signPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || sign ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+      pk2 || en)) .
+  eq certVerM(?a2,a,b, ?sign3 ||
+      pqsign(pqSignPriK(a), h(a || b || dl || 
+      signPubK(b) || sign(signPriK(ca), h(b || signPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || sign ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+      pk2 || en)) 
+    ) \in nw(s) = false .
+  red se-lm9'(s,a,b,?a2,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,?sign3,?sign4,dl)
+    implies auth2(s,a,b,?b,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?b ?a2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 ?sign3 ?sign4 : -> Data .
+  op dl : -> DataL .
+  eq pspk = pqSignPubK(a) .
+  eq (?sign4 = pqsign(pqSignPriK(a), h(a || b || dl || 
+      signPubK(b) || sign(signPriK(ca), h(b || signPubK(b))) ||
+      pqSignPubK(b) || pqsign(pqSignPriK(ca), h(b || pqSignPubK(b))) ||
+      ecPublic(k) || keygen(k') ||
+      sign(signPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      pqsign(pqSignPriK(b), h(r || r2 || ecPublic(k) || keygen(k'))) ||
+      cspk || sign ||
+      pqSignPubK(a) || pqsign(pqSignPriK(ca), h(a || pqSignPubK(a))) ||
+      pk2 || en))) = false .
+  red se-lm9'(s,a,b,?a2,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,?sign3,?sign4,dl)
+    implies auth2(s,a,b,?b,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,dl,?m) .
+close
+
+open PQSAFE-CONFIG .
+  ops a b ?b ?a2 : -> Prin .
+  ops ?n ?m : -> Nat .
+  op k : -> EcSecretK .
+  op k' : -> PqSecretK .
+  op pk2 : -> EcPublicK .
+  op en : -> PqCipher .
+  op cspk : -> SignPubK .
+  op pspk : -> PqSignPubK .
+  ops r r2 : -> Rand .
+  op s : -> Sys .
+  ops sign sign2 ?sign3 ?sign4 : -> Data .
+  op dl : -> DataL .
+  eq (pspk = pqSignPubK(a)) = false .
+  red (se-lm8'(s,a,b,?a2,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,dl,?n,?m)
+      and inv2'(s,b,a,?a2,cspk,pspk,sign))
+    implies auth2(s,a,b,?b,k,k',pk2,en,r,r2,cspk,sign,pspk,sign2,dl,?m) .
+close
